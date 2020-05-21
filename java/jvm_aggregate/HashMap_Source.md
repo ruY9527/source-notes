@@ -322,5 +322,64 @@ final Node<K,V>[] resize() {
 
 
 
+get 方法,是通过key来获取出对应的value.
 
+```java
+public V get(Object key) {
+    Node<K,V> e;
+    return (e = getNode(hash(key), key)) == null ? null : e.value;
+}
+
+// 传入key来计算出哈希值
+static final int hash(Object key) {
+        int h;
+        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+}
+
+/**
+	如果 table不是Null,并且长度是大于0的,能够根据 (n-1) & hash 得出来的下标是在tab里面能获取到值得,才会进入逻辑代码,否则就是返回null.
+	如果first的hash是于传入进来的hash相同,斌且给key的值也是相同的话,就会返回first节点.
+	拿node的next节点,如果是TreeNode的类,就会走TreeNode对应的getTreeNode方法(链表的长度大于8就会转化为红黑树). 否则的话就就迭代这个Node,退出的条件就是 e.next == null,就说说明下面没有对应的节点了。
+	这里拿值得逻辑,还是比较容易理解得。 先根据计算出来得hash值,去数组中是否可以获取到对应得值,如果有就先会对first进行判断,是否满足条件.如果不满足的话,就说明这个key的hash是由冲突的,也就是由二个不同的值,计算出来相同的hash值,这个时候就会用链表(Node)来进行存储,如果长度是大于8的话,就会转化为TreeNode的红黑树.
+*/
+final Node<K,V> getNode(int hash, Object key) {
+        Node<K,V>[] tab; Node<K,V> first, e; int n; K k;
+        if ((tab = table) != null && (n = tab.length) > 0 &&
+            (first = tab[(n - 1) & hash]) != null) {
+            if (first.hash == hash && // always check first node
+                ((k = first.key) == key || (key != null && key.equals(k))))
+                return first;
+            if ((e = first.next) != null) {
+                if (first instanceof TreeNode)
+                    return ((TreeNode<K,V>)first).getTreeNode(hash, key);
+                do {
+                    if (e.hash == hash &&
+                        ((k = e.key) == key || (key != null && key.equals(k))))
+                        return e;
+                } while ((e = e.next) != null);
+            }
+        }
+        return null;
+}
+```
+
+
+
+isEmpty 方法,这里就直接使用 size == 0 来进行判断,如果你的map是null的话,直接调用这个方法就会出现空指针.
+
+```java
+public boolean isEmpty() {
+    return size == 0;
+}
+```
+
+
+
+------
+
+
+
+#### 总结
+
+​	这里只是选用了 put  和 get方法来进行讲解,因为这二个是经常调用的,所以得明白是一个怎么样得大体流程走向才行.
 
