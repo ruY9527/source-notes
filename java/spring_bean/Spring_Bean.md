@@ -677,6 +677,9 @@ org.springframework.context.annotation.AnnotatedBeanDefinitionReader
 
 		/**
 		 *  上面的数据结构注册；对象注册给 registry
+		 	这个方法就是将 beanDefinition(YangConfig)给添加到 BeanFactory中去.
+		 	这里的将 bd给添加到 BeanFacotry中是在this()构造函数中有说明的,因为在构造函数里面,有五个也是这个一样的，使用的同样代码,走的逻辑都是一摸一样的.
+		 	org.springframework.beans.factory.support.DefaultListableBeanFactory#registerBeanDefinition            还是会走到 DefaultListableBeanFactory 这个类中的 registerBeanDefinition 方法来.其实也就是根据beanName,bd 根据key是beanname,value是bd给添加到map集合中即可.
 		 */
 		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
 	}
@@ -748,5 +751,323 @@ org.springframework.context.annotation.AnnotationScopeMetadataResolver
 				absBd.setDescription(description.getString("value"));
 			}
 		}
+	}
+```
+
+
+
+
+
+####  refresh() 方法
+
+​    refresh() 方法是最主要的方法，这里我们只是使用了 Spring, 到SpringBoot 的源码中, 还是有调用这个refresh 这个方法.
+
+可以看到 refresh 方法里面还是走了蛮多的方法. 有一些方法是留给扩展的,比如 onRefresh() 这个方法,当你启动SpringBoot的话，这个方法就会走到去 new Tomcat的逻辑.
+
+  sychronized 关键字，可以看到进入执行下面的代码，一次只容许一个线程进来操作.
+
+```java
+@Override
+public void refresh() throws BeansException, IllegalStateException {
+   synchronized (this.startupShutdownMonitor) {
+      // Prepare this context for refreshing.
+      prepareRefresh();
+
+      // Tell the subclass to refresh the internal bean factory.
+      ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
+
+      // Prepare the bean factory for use in this context.
+      prepareBeanFactory(beanFactory);
+
+      try {
+         // Allows post-processing of the bean factory in context subclasses.
+         // 这个方法在当前版本的 Spring 是没有任何代码
+         postProcessBeanFactory(beanFactory);
+          
+         // Invoke factory processors registered as beans in the context.
+         invokeBeanFactoryPostProcessors(beanFactory);
+
+         // Register bean processors that intercept bean creation.
+         registerBeanPostProcessors(beanFactory);
+         // Initialize message source for this context.
+         initMessageSource();
+
+         // Initialize event multicaster for this context.
+         initApplicationEventMulticaster();
+         // Initialize other special beans in specific context subclasses.
+         onRefresh();
+         // Check for listener beans and register them.
+         registerListeners();
+         // Instantiate all remaining (non-lazy-init) singletons.
+         finishBeanFactoryInitialization(beanFactory);
+
+         // Last step: publish corresponding event.
+         finishRefresh();
+      } catch (BeansException ex) {
+         if (logger.isWarnEnabled()) {
+            logger.warn("Exception encountered during context initialization - " +
+                  "cancelling refresh attempt: " + ex);
+         }
+         // Destroy already created singletons to avoid dangling resources.
+         destroyBeans();
+         // Reset 'active' flag.
+         cancelRefresh(ex);
+         // Propagate exception to caller.
+         throw ex;
+      } finally {
+         // Reset common introspection caches in Spring's core, since we
+         // might not ever need metadata for singleton beans anymore...
+         resetCommonCaches();
+      }
+   }
+}
+```
+
+
+
+
+
+prepareRefresh ()  :
+
+org.springframework.context.support.AbstractApplicationContext
+
+```java
+/**
+ * Prepare this context for refreshing, setting its startup date and
+ * active flag as well as performing any initialization of property sources.
+ */
+protected void prepareRefresh() {
+   // Switch to active.
+   this.startupDate = System.currentTimeMillis
+   //  对closed设置false,active设置为true. closed 和 active 都是AtomicBoolean,这个是线程安全的.
+   this.closed.set(false);
+   this.active.set(true);
+
+   if (logger.isInfoEnabled()) {
+      logger.info("Refreshing " + this);
+   }
+
+   // Initialize any placeholder property sources in the context environment.
+   // 目前该方法没有调用;目前没有做任何事情. 留给子类去实现的方法.
+   initPropertySources();
+
+   // Validate that all properties marked as required are resolvable:
+   // see ConfigurablePropertyResolver#setRequiredProperties
+    // 先走getEnvironment方法,返回的是this.environment,也就是StandardEnvironment,
+    //  org.springframework.core.env.AbstractEnvironment里面的validateRequiredProperties方法,先new一个MissingRequiredPropertiesException,如果this.requeiredProperties中检验有问题的话,就会放入MissingRequiredPropertiesException中属性集合中,然后判断如果集合不是empty的话,就说明是有值的,然后就抛出异常来. 我们这里检验是没有问题的.
+   getEnvironment().validateRequiredProperties();
+
+   System.out.println("this.earlyApplicationListeners value is  - - - ->" + this.earlyApplicationListeners);
+   // Store pre-refresh ApplicationListeners...
+    // 如果earlyApplicationListeners是null的话,就初始化一个.
+   if (this.earlyApplicationListeners == null) {
+       // 这里的 applicationListeners 也是空集合.
+      this.earlyApplicationListeners = new LinkedHashSet<>(this.applicationListeners);
+   }  else {
+      // Reset local application listeners to pre-refresh state.
+       // 如果不为空集合的话,就先清空,然后将 earlyApplicationListeners添加进去.
+      this.applicationListeners.clear();
+      this.applicationListeners.addAll(this.earlyApplicationListeners);
+   }
+
+   // Allow for the collection of early ApplicationEvents,
+   // to be published once the multicaster is available...
+   this.earlyApplicationEvents = new LinkedHashSet<>();
+}
+```
+
+可以看到 prepareRefresh  显示对closed和active参数值设置,然后检验一下配置参数,然后是有问题的话,就会抛出异常来。 然后对 earlyApplicationListeners进行判断或者初始化,初始化 earlyApplicationEvents 集合.
+
+
+
+obtainFreshBeanFactory() 方法 :
+
+```java
+/**
+ * Tell the subclass to refresh the internal bean factory.
+ * @return the fresh BeanFactory instance
+ * @see #refreshBeanFactory()
+ * @see #getBeanFactory()
+ */
+protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
+    // org.springframework.context.support.GenericApplicationContext
+   refreshBeanFactory();
+    // org.springframework.context.support.GenericApplicationContext,
+    // 这里是走的GenericApplicationContext 返回的beanFactory是 DefaultListableBeanFactory,
+    // 然后将 DefaultListableBeanFactory给返回去.
+   ConfigurableListableBeanFactory beanFactory = getBeanFactory();
+   if (logger.isDebugEnabled()) {
+      logger.debug("Bean factory for " + getDisplayName() + ": " + beanFactory);
+   }
+   return beanFactory;
+}
+
+// 这里有一个 compareAndSet --> CAS,主要是防止没有被更新,如果有的话,就说明有个线程在同时操作,这个地方就抛出异常来
+protected final void refreshBeanFactory() throws IllegalStateException {
+		if (!this.refreshed.compareAndSet(false, true)) {
+			throw new IllegalStateException(
+					"GenericApplicationContext does not support multiple refresh attempts: just call 'refresh' once");
+		}
+    /**
+    setSerializationId 方法走到了 DefaultListableBeanFactory里面,也就是将获取出来的getId()给赋值给serializationId这个属性，还有一个存放在Map里面的逻辑.private static final Map<String, Reference<DefaultListableBeanFactory>> = new ConcurrentHashMap<>(8); 
+    org.springframework.beans.factory.support.DefaultListableBeanFactory
+    */
+		this.beanFactory.setSerializationId(getId());
+	}
+```
+
+
+
+prepareBeanFactory(beanFactory) 方法阅读:
+
+```java
+/**
+ *
+ * Configure the factory's standard context characteristics,
+ * such as the context's ClassLoader and post-processors.
+ * @param beanFactory the BeanFactory to configure
+ */
+protected void prepareBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+   // Tell the internal bean factory to use the context's class loader etc.
+   //  然后将返回的classLoader 赋值给 this.beanClassLoader.
+   beanFactory.setBeanClassLoader(getClassLoader());
+    // beanFactory.getBeanClassLoader() 这个应该是刚刚上面set进去的方法,然后new 一个StandardBeanExpressionResolver 对象,  org.springframework.expression.spel.SpelParserConfiguration#SpelParserConfiguration(org.springframework.expression.spel.SpelCompilerMode, java.lang.ClassLoader, boolean, boolean, int) 里面都是参数的设置. this.beanExpressionResolver = resolver;最后new出来的StandardBeanExpressionResolve赋值给beanExpressionResolver.
+   beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
+   
+    // org.springframework.beans.support.ResourceEditorRegistrar#ResourceEditorRegistrar
+    // 先是get出来的Environmentde,然后走到ResourceEditorRegistrar#ResourceEditorRegistrar,
+    // private final Set<PropertyEditorRegistrar> propertyEditorRegistrars = new LinkedHashSet<>(4); 然后addPropertyEditorRegistrar方法也是往 propertyEditorRegistrars里面添加
+   beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
+
+   // Configure the bean factory with context callbacks.
+//org.springframework.context.support.ApplicationContextAwareProcessor#ApplicationContextAwareProcessor,这里的this就是AnnotationConfigApplicationContext,然后传入到构造函数中,
+//addBeanPostProcessor添加的ApplicationContextAwareProcessor这个,
+   beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+
+// private final Set<Class<?>> ignoredDependencyInterfaces = new HashSet<>();
+  //   ignoreDependencyInterface 都是往这个集合中添加这些类,也就是添加了  EnvironmentAware / EmbeddedValueResolverAware / ResourceLoaderAware / ApplicationEventPublisherAware/ MessageSourceAware/ ApplicationContextAware 等这些类.
+   beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
+   beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
+   beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
+   beanFactory.ignoreDependencyInterface(ApplicationEventPublisherAware.class);
+   beanFactory.ignoreDependencyInterface(MessageSourceAware.class);
+   beanFactory.ignoreDependencyInterface(ApplicationContextAware.class);
+
+   // BeanFactory interface not registered as resolvable type in a plain factory.
+   // MessageSource registered (and found for autowiring) as a bean.
+// registerResolvableDependency方法,对传入进来的第一个参数进行检验,不能为null.
+// private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
+// 然后根据BeanFactory.class为key,beanFactory为value,去放入到resolvableDependencies(Map)中
+   beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
+   beanFactory.registerResolvableDependency(ResourceLoader.class, this);
+   beanFactory.registerResolvableDependency(ApplicationEventPublisher.class, this);
+   beanFactory.registerResolvableDependency(ApplicationContext.class, this);
+
+   // Register early post-processor for detecting inner beans as ApplicationListeners.
+// new ApplicationListenerDetector(),也是传入进去的 AnnotationConfigApplicationContext这个,然后this.application = application, 赋值给 ApplicationListenerDetector 中的application参数.
+// addBeanPostProcessor 下面也是有对这个方法进行阅读的. 但是这个参数满足 DestructionAwareBeanPostProcessor 条件,于是就有了 this.hasDestructionAwareBeanPostProcessors这个参数是true的. 最后也是添加到 beanPostProcessors 这个集合中    
+   beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this));
+
+   // Detect a LoadTimeWeaver and prepare for weaving, if found.
+    // 不满足条件,没有进入来
+   if (beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+      beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
+      // Set a temporary ClassLoader for type matching.
+      beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
+   }
+
+   // Register default environment beans.
+   if (!beanFactory.containsLocalBean(ENVIRONMENT_BEAN_NAME)) {
+       // 这里将获取出来的 Environment对象,作为单例给注册到beanFactory中去,目前也是添加到集合中
+       // 这里没有放入beanDefinitionMap中,而是添加到了manualSingletonName这个集合中
+      beanFactory.registerSingleton(ENVIRONMENT_BEAN_NAME, getEnvironment());
+   }
+   if (!beanFactory.containsLocalBean(SYSTEM_PROPERTIES_BEAN_NAME)) {
+       // 这里与 Register default environment beans. 逻辑是一样的
+      beanFactory.registerSingleton(SYSTEM_PROPERTIES_BEAN_NAME, getEnvironment().getSystemProperties());
+   }
+   if (!beanFactory.containsLocalBean(SYSTEM_ENVIRONMENT_BEAN_NAME)) {
+       // 这里与上面的逻辑也是一样的
+      beanFactory.registerSingleton(SYSTEM_ENVIRONMENT_BEAN_NAME, getEnvironment().getSystemEnvironment());
+   }
+}
+
+/**
+  this.resourceLoader是null, customClassLoader 是false.
+*/
+@Override
+@Nullable
+public ClassLoader getClassLoader() {
+		if (this.resourceLoader != null && !this.customClassLoader) {
+			return this.resourceLoader.getClassLoader();
+		}
+		return super.getClassLoader();
+}
+
+
+/**
+* Create a new ApplicationContextAwareProcessor for the given context.
+  传入进来的 applicationContext 赋值给 this.applicationContext,
+*/
+public ApplicationContextAwareProcessor(ConfigurableApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+		this.embeddedValueResolver = new EmbeddedValueResolver(applicationContext.getBeanFactory());
+	}
+
+// org.springframework.beans.factory.config.EmbeddedValueResolver#EmbeddedValueResolver,
+//这里继续往下去new 对象,
+public EmbeddedValueResolver(ConfigurableBeanFactory beanFactory) {
+	this.exprContext = new BeanExpressionContext(beanFactory, null);
+	this.exprResolver = beanFactory.getBeanExpressionResolver();
+}
+
+// org.springframework.beans.factory.support.AbstractBeanFactory
+	@Override
+	public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+        // 显示对传入进来的 beanPostProcessor进行不为null的判断.
+		Assert.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
+		// Remove from old position, if any
+        // private final List<BeanPostProcessor> beanPostProcessors = new CopyOnWriteArrayList<>();
+        // 从beanPostProcessors中移除.
+		this.beanPostProcessors.remove(beanPostProcessor);
+		// Track whether it is instantiation/destruction aware
+        // 这里由于传入进来的不满足条件,因此下面的二个都不会走.
+        // 如果是 InstantiationAwareBeanPostProcessor,对应的参数就会设置为ture
+		if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+			this.hasInstantiationAwareBeanPostProcessors = true;
+		}
+		if (beanPostProcessor instanceof DestructionAwareBeanPostProcessor) {
+			this.hasDestructionAwareBeanPostProcessors = true;
+		}
+		// Add to end of list
+        // 然后又往 beanPostProcessors中添加传入进来的beanPostPorcessor.
+		this.beanPostProcessors.add(beanPostProcessor);
+	}
+
+// org.springframework.beans.factory.support.DefaultListableBeanFactory#registerSingleton
+// 这个方法在上面也是进行阅读的,就是在this()方法里面,对一些代码的饿
+	@Override
+	public void registerSingleton(String beanName, Object singletonObject) throws IllegalStateException {
+		super.registerSingleton(beanName, singletonObject);
+
+		if (hasBeanCreationStarted()) {
+			// Cannot modify startup-time collection elements anymore (for stable iteration)
+			synchronized (this.beanDefinitionMap) {
+				if (!this.beanDefinitionMap.containsKey(beanName)) {
+					Set<String> updatedSingletons = new LinkedHashSet<>(this.manualSingletonNames.size() + 1);
+					updatedSingletons.addAll(this.manualSingletonNames);
+					updatedSingletons.add(beanName);
+					this.manualSingletonNames = updatedSingletons;
+				}
+			}
+		}
+		else {
+			// Still in startup registration phase
+			if (!this.beanDefinitionMap.containsKey(beanName)) {
+				this.manualSingletonNames.add(beanName);
+			}
+		}
+
+		clearByTypeCache();
 	}
 ```
