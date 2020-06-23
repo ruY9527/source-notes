@@ -1071,3 +1071,842 @@ public EmbeddedValueResolver(ConfigurableBeanFactory beanFactory) {
 		clearByTypeCache();
 	}
 ```
+
+
+
+postProcessBeanFactory(beanFactory) : 
+
+// 可以看到这个方法,是走到下面的方法,是没有做任何代码. 应该是留到子类进行实现走自己的逻辑
+
+```
+/**
+ * Modify the application context's internal bean factory after its standard
+ * initialization. All bean definitions will have been loaded, but no beans
+ * will have been instantiated yet. This allows for registering special
+ * BeanPostProcessors etc in certain ApplicationContext implementations.
+ * @param beanFactory the bean factory used by the application context
+ */
+protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+}
+```
+
+
+
+invokeBeanFactoryPostProcessors(beanFactory) 方法:
+
+ 
+
+```java
+/**
+ * Instantiate and invoke all registered BeanFactoryPostProcessor beans,
+ * respecting explicit order if given.
+ * <p>Must be called before singleton instantiation.
+ */
+protected void invokeBeanFactoryPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+
+   //  getBeanFactoryPostProcessors()  这个方法直接获取一个list;这个list在 AnnotationConfigApplicationContext 定义的. 这里的getBeanFactoryPostProcessors()直接写在invokeBeanFactoryPostProcessors这个里面,编译了源码,于是就抽取出来了.
+    // 这里目前抽取出来的集合是空集合,没有值的.
+   List<BeanFactoryPostProcessor> postProcessorsList = getBeanFactoryPostProcessors();
+   //System.out.println("postProcessorsList value ---> " + postProcessorsList);
+   // System.out.println("beanFactory  value 111111 ---> " + beanFactory);
+
+   //  自定义就是自己写的
+   PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, postProcessorsList);
+
+   // Detect a LoadTimeWeaver and prepare for weaving, if found in the meantime
+   // (e.g. through an @Bean method registered by ConfigurationClassPostProcessor)
+   if (beanFactory.getTempClassLoader() == null && beanFactory.containsBean(LOAD_TIME_WEAVER_BEAN_NAME)) {
+      beanFactory.addBeanPostProcessor(new LoadTimeWeaverAwareProcessor(beanFactory));
+      beanFactory.setTempClassLoader(new ContextTypeMatchClassLoader(beanFactory.getBeanClassLoader()));
+   }
+}
+
+
+
+// org.springframework.context.support.PostProcessorRegistrationDelegate,从这个方法的名字上看,调用 BeanFactroyPostProcessors. 传入进来的集合是空集合,beanFactoy是DefaultListableBeanFactory.
+	public static void invokeBeanFactoryPostProcessors(
+			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
+
+		// Invoke BeanDefinitionRegistryPostProcessors first, if any.
+		Set<String> processedBeans = new HashSet<>();
+		
+        // 这里是满足条件的.
+		if (beanFactory instanceof BeanDefinitionRegistry) {
+			/**
+			 * 如果beanFactory 是 BeanDefinitionRegistry;强转
+			 */
+			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
+			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>();
+			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
+			
+            // 由于传入进来的集合是空集合,所以这里也就是上面可以迭代的.
+			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
+				// 如果是 BeanDefinitionRegistryPostProcessor
+				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
+					BeanDefinitionRegistryPostProcessor registryProcessor =
+							(BeanDefinitionRegistryPostProcessor) postProcessor;
+					//  赋值进 beanFactory
+					registryProcessor.postProcessBeanDefinitionRegistry(registry);
+					// 添加进入集合中
+					registryProcessors.add(registryProcessor);
+				} else {
+					//  否则就添加到宁外一个 registry的集合中
+					regularPostProcessors.add(postProcessor);
+				}
+			}
+
+			// Do not initialize FactoryBeans here: We need to leave all regular beans
+			// uninitialized to let the bean factory post-processors apply to them!
+			// Separate between BeanDefinitionRegistryPostProcessors that implement
+			// PriorityOrdered, Ordered, and the rest.
+			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
+
+			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
+// 这里调用beanFactory的getBeanNamesForType,获取出来的数组里面只有一个 org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+			String[] postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class,
+							true, false);
+
+			for (String ppName : postProcessorNames) {
+// ppName : org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+//  beanFactory.isTypeMatch返回的是true,也就是代码继续往下走                
+				if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+// org.springframework.beans.factory.support.AbstractBeanFactory#doGetBean,这个方法是很重要的,                    
+					currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
+					processedBeans.add(ppName);
+				}
+			}
+
+			sortPostProcessors(currentRegistryProcessors, beanFactory);
+			registryProcessors.addAll(currentRegistryProcessors);
+
+			//  这步执行完,BeanFactory 中的 beanDefinitionMap 中的个数 从 7 到 12. 说明Bean在这步是有执行操作的
+			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
+			currentRegistryProcessors.clear();
+
+			// Next, invoke the BeanDefinitionRegistryPostProcessors that implement Ordered.
+			postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
+			for (String ppName : postProcessorNames) {
+				if (!processedBeans.contains(ppName) && beanFactory.isTypeMatch(ppName, Ordered.class)) {
+					currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
+					processedBeans.add(ppName);
+				}
+			}
+			sortPostProcessors(currentRegistryProcessors, beanFactory);
+			registryProcessors.addAll(currentRegistryProcessors);
+			invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
+			currentRegistryProcessors.clear();
+
+			// Finally, invoke all other BeanDefinitionRegistryPostProcessors until no further ones appear.
+			boolean reiterate = true;
+			while (reiterate) {
+				reiterate = false;
+				postProcessorNames = beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
+				for (String ppName : postProcessorNames) {
+					if (!processedBeans.contains(ppName)) {
+						currentRegistryProcessors.add(beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class));
+						processedBeans.add(ppName);
+						reiterate = true;
+					}
+				}
+				sortPostProcessors(currentRegistryProcessors, beanFactory);
+				registryProcessors.addAll(currentRegistryProcessors);
+				invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
+				currentRegistryProcessors.clear();
+			}
+
+			// Now, invoke the postProcessBeanFactory callback of all processors handled so far.
+			//  这步是有执行到的,可以 debug 进去看详细的执行流程操作
+			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
+			invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
+		}
+
+		else {
+			// Invoke factory processors registered with the context instance.
+			invokeBeanFactoryPostProcessors(beanFactoryPostProcessors, beanFactory);
+		}
+
+		// Do not initialize FactoryBeans here: We need to leave all regular beans
+		// uninitialized to let the bean factory post-processors apply to them!
+		String[] postProcessorNames =
+				beanFactory.getBeanNamesForType(BeanFactoryPostProcessor.class, true, false);
+
+		// Separate between BeanFactoryPostProcessors that implement PriorityOrdered,
+		// Ordered, and the rest.
+		List<BeanFactoryPostProcessor> priorityOrderedPostProcessors = new ArrayList<>();
+		List<String> orderedPostProcessorNames = new ArrayList<>();
+		List<String> nonOrderedPostProcessorNames = new ArrayList<>();
+		for (String ppName : postProcessorNames) {
+			if (processedBeans.contains(ppName)) {
+				// skip - already processed in first phase above
+			}
+			else if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+				priorityOrderedPostProcessors.add(beanFactory.getBean(ppName, BeanFactoryPostProcessor.class));
+			}
+			else if (beanFactory.isTypeMatch(ppName, Ordered.class)) {
+				orderedPostProcessorNames.add(ppName);
+			}
+			else {
+				nonOrderedPostProcessorNames.add(ppName);
+			}
+		}
+
+		// First, invoke the BeanFactoryPostProcessors that implement PriorityOrdered.
+		sortPostProcessors(priorityOrderedPostProcessors, beanFactory);
+		invokeBeanFactoryPostProcessors(priorityOrderedPostProcessors, beanFactory);
+
+		// Next, invoke the BeanFactoryPostProcessors that implement Ordered.
+		List<BeanFactoryPostProcessor> orderedPostProcessors = new ArrayList<>();
+		for (String postProcessorName : orderedPostProcessorNames) {
+			orderedPostProcessors.add(beanFactory.getBean(postProcessorName, BeanFactoryPostProcessor.class));
+		}
+		sortPostProcessors(orderedPostProcessors, beanFactory);
+		invokeBeanFactoryPostProcessors(orderedPostProcessors, beanFactory);
+
+		// Finally, invoke all other BeanFactoryPostProcessors.
+		List<BeanFactoryPostProcessor> nonOrderedPostProcessors = new ArrayList<>();
+		for (String postProcessorName : nonOrderedPostProcessorNames) {
+			nonOrderedPostProcessors.add(beanFactory.getBean(postProcessorName, BeanFactoryPostProcessor.class));
+		}
+		invokeBeanFactoryPostProcessors(nonOrderedPostProcessors, beanFactory);
+
+		// Clear cached merged bean definitions since the post-processors might have
+		// modified the original metadata, e.g. replacing placeholders in values...
+		beanFactory.clearMetadataCache();
+	}
+
+-------------------
+// org.springframework.core.ResolvableType
+	/**
+	 * Return a {@link ResolvableType} for the specified {@link Class},
+	 * doing assignability checks against the raw class only (analogous to
+	 * {@link Class#isAssignableFrom}, which this serves as a wrapper for.
+	 * For example: {@code ResolvableType.forRawClass(List.class)}.
+	 * @param clazz the class to introspect ({@code null} is semantically
+	 * equivalent to {@code Object.class} for typical use cases here)
+	 * @return a {@link ResolvableType} for the specified class
+	 * @since 4.2
+	 * @see #forClass(Class)
+	 * @see #getRawClass()
+	 
+	 clazz : org.springframework.core.PriorityOrdered
+	 返回的对象 : clazz属性的值是 传入进来的clazz的值,这里可以debug进去.
+	 */
+	public static ResolvableType forRawClass(@Nullable Class<?> clazz) {
+		return new ResolvableType(clazz) {
+			@Override
+			public ResolvableType[] getGenerics() {
+				return EMPTY_TYPES_ARRAY;
+			}
+			@Override
+			public boolean isAssignableFrom(Class<?> other) {
+				return (clazz == null || ClassUtils.isAssignable(clazz, other));
+			}
+			@Override
+			public boolean isAssignableFrom(ResolvableType other) {
+				Class<?> otherClass = other.resolve();
+				return (otherClass != null && (clazz == null || ClassUtils.isAssignable(clazz, otherClass)));
+			}
+		};
+	}    
+
+--------------------
+// org.springframework.beans.factory.support.AbstractBeanFactory
+//    
+	@Override
+	public boolean isTypeMatch(String name, ResolvableType typeToMatch) throws NoSuchBeanDefinitionException {
+    // org.springframework.beans.factory.BeanFactoryUtils.transformedBeanName(),这个方法如果是以&开头的话,然后就进行截取.
+// org.springframework.core.SimpleAliasRegistry.canonicalName() 这个方法是判断是否有别名    
+		String beanName = transformedBeanName(name);
+
+		// Check manually registered singletons.
+// org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton()走的这个方法.这里返回的是beanInstance是null,
+		Object beanInstance = getSingleton(beanName, false);
+    // 返回的null,于是就没有进入到if里面
+		if (beanInstance != null && beanInstance.getClass() != NullBean.class) {
+			if (beanInstance instanceof FactoryBean) {
+				if (!BeanFactoryUtils.isFactoryDereference(name)) {
+					Class<?> type = getTypeForFactoryBean((FactoryBean<?>) beanInstance);
+					return (type != null && typeToMatch.isAssignableFrom(type));
+				}
+				else {
+					return typeToMatch.isInstance(beanInstance);
+				}
+			}
+			else if (!BeanFactoryUtils.isFactoryDereference(name)) {
+				if (typeToMatch.isInstance(beanInstance)) {
+					// Direct match for exposed instance?
+					return true;
+				}
+				else if (typeToMatch.hasGenerics() && containsBeanDefinition(beanName)) {
+					// Generics potentially only match on the target class, not on the proxy...
+					RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+					Class<?> targetType = mbd.getTargetType();
+					if (targetType != null && targetType != ClassUtils.getUserClass(beanInstance)) {
+						// Check raw class match as well, making sure it's exposed on the proxy.
+						Class<?> classToMatch = typeToMatch.resolve();
+						if (classToMatch != null && !classToMatch.isInstance(beanInstance)) {
+							return false;
+						}
+						if (typeToMatch.isAssignableFrom(targetType)) {
+							return true;
+						}
+					}
+					ResolvableType resolvableType = mbd.targetType;
+					if (resolvableType == null) {
+						resolvableType = mbd.factoryMethodReturnType;
+					}
+					return (resolvableType != null && typeToMatch.isAssignableFrom(resolvableType));
+				}
+			}
+			return false;
+		}
+// 上面返回的null,else if的条件也不满足. 
+		else if (containsSingleton(beanName) && !containsBeanDefinition(beanName)) {
+			// null instance registered
+			return false;
+		}
+
+		// No singleton instance found -> check bean definition.
+    // 这里返回的是null,所以下面的if方法也不会进去.
+		BeanFactory parentBeanFactory = getParentBeanFactory();
+		if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
+			// No bean definition found in this factory -> delegate to parent.
+			return parentBeanFactory.isTypeMatch(originalBeanName(name), typeToMatch);
+		}
+
+		// Retrieve corresponding bean definition.
+    //getMergedLocalBeanDefinition方法返回的mbd,beanClass:org.springframework.context.annotation.ConfigurationClassPostProcessor
+		RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+
+		Class<?> classToMatch = typeToMatch.resolve();
+		if (classToMatch == null) {
+			classToMatch = FactoryBean.class;
+		}
+    // 这里的 FactoryBean.class == classToMatch 是false,所以这个数组中就有二个值,分别是Factory和PriorityOrdered.
+		Class<?>[] typesToMatch = (FactoryBean.class == classToMatch ?
+				new Class<?>[] {classToMatch} : new Class<?>[] {FactoryBean.class, classToMatch});
+
+		// Check decorated bean definition, if any: We assume it'll be easier
+		// to determine the decorated bean's type than the proxy's type.
+        // 这里的dbd返回的是Null,由于是Null所以下面的if条件也不会进入
+		BeanDefinitionHolder dbd = mbd.getDecoratedDefinition();
+    
+		if (dbd != null && !BeanFactoryUtils.isFactoryDereference(name)) {
+			RootBeanDefinition tbd = getMergedBeanDefinition(dbd.getBeanName(), dbd.getBeanDefinition(), mbd);
+			Class<?> targetClass = predictBeanType(dbd.getBeanName(), tbd, typesToMatch);
+			if (targetClass != null && !FactoryBean.class.isAssignableFrom(targetClass)) {
+				return typeToMatch.isAssignableFrom(targetClass);
+			}
+		}
+
+    // 这里传入的 beanName,mdb,typesToMatch数组,都是在上面有提到的,是一步一步走下来的.这里返回的是class org.springframework.context.annotation.ConfigurationClassPostProcessor,所以下面的if是不会进入的
+		Class<?> beanType = predictBeanType(beanName, mbd, typesToMatch);
+		if (beanType == null) {
+			return false;
+		}
+
+		// Check bean class whether we're dealing with a FactoryBean.
+    // 是否在处理FactoryBean
+		if (FactoryBean.class.isAssignableFrom(beanType)) {
+			if (!BeanFactoryUtils.isFactoryDereference(name) && beanInstance == null) {
+				// If it's a FactoryBean, we want to look at what it creates, not the factory class.
+				beanType = getTypeForFactoryBean(beanName, mbd);
+				if (beanType == null) {
+					return false;
+				}
+			}
+		}
+    // name 不是null,并且是&开头的.这里是不满足条件的,所以就返回false,也不会进入到下面的代码去处理对应的逻辑.
+		else if (BeanFactoryUtils.isFactoryDereference(name)) {
+			// Special case: A SmartInstantiationAwareBeanPostProcessor returned a non-FactoryBean
+			// type but we nevertheless are being asked to dereference a FactoryBean...
+			// Let's check the original bean class and proceed with it if it is a FactoryBean.
+			beanType = predictBeanType(beanName, mbd, FactoryBean.class);
+			if (beanType == null || !FactoryBean.class.isAssignableFrom(beanType)) {
+				return false;
+			}
+		}
+
+    // resolvableType 这里的值是null
+		ResolvableType resolvableType = mbd.targetType;
+		if (resolvableType == null) {
+            // 这里还是返回的还是null
+			resolvableType = mbd.factoryMethodReturnType;
+		}
+    //  resolvableType的值是null,所以就不会进入到这里.
+		if (resolvableType != null && resolvableType.resolve() == beanType) {
+			return typeToMatch.isAssignableFrom(resolvableType);
+		}
+// org.springframework.util.ClassUtils#isAssignable , 这里返回的true    
+		return typeToMatch.isAssignableFrom(beanType);
+	}    
+
+
+---------
+// org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory    
+	@Override
+	@Nullable
+	protected Class<?> predictBeanType(String beanName, RootBeanDefinition mbd, Class<?>... typesToMatch) {
+		Class<?> targetType = determineTargetType(beanName, mbd, typesToMatch);
+		// Apply SmartInstantiationAwareBeanPostProcessors to predict the
+		// eventual type after a before-instantiation shortcut.
+// mdb.isSynthetic()是否是综合的,这里返回的是false.
+//hasInstantiationAwareBeanPostProcessors(),是否已经注册了任何实体化InstantiationAwareBeanPostProcessors,返回的是false,所以就不满足条件进入到if里面    
+		if (targetType != null && !mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
+			for (BeanPostProcessor bp : getBeanPostProcessors()) {
+				if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
+					SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
+					Class<?> predicted = ibp.predictBeanType(targetType, beanName);
+					if (predicted != null && (typesToMatch.length != 1 || FactoryBean.class != typesToMatch[0] ||
+							FactoryBean.class.isAssignableFrom(predicted))) {
+						return predicted;
+					}
+				}
+			}
+		}
+		return targetType;
+	}    
+
+/**
+	 * Determine the target type for the given bean definition.
+	 * @param beanName the name of the bean (for error handling purposes)
+	 * @param mbd the merged bean definition for the bean
+	 * @param typesToMatch the types to match in case of internal type matching purposes
+	 * (also signals that the returned {@code Class} will never be exposed to application code)
+	 * @return the type for the bean if determinable, or {@code null} otherwise
+	 
+	 */
+	@Nullable
+	protected Class<?> determineTargetType(String beanName, RootBeanDefinition mbd, Class<?>... typesToMatch) {
+        // targetType的值是 org.springframework.context.annotation.ConfigurationClassPostProcessor,target不是null,于是就直接返回了.
+		Class<?> targetType = mbd.getTargetType();
+		if (targetType == null) {
+			targetType = (mbd.getFactoryMethodName() != null ?
+					getTypeForFactoryMethod(beanName, mbd, typesToMatch) :
+					resolveBeanClass(mbd, beanName, typesToMatch));
+			if (ObjectUtils.isEmpty(typesToMatch) || getTempClassLoader() == null) {
+				mbd.resolvedTargetType = targetType;
+			}
+		}
+		return targetType;
+	}
+
+----------------------------
+doGetBean 还是真正的获取Bean方法,这里我们继续往下看.    
+	/**
+	 * Return an instance, which may be shared or independent, of the specified bean.
+	 * @param name the name of the bean to retrieve
+	 * @param requiredType the required type of the bean to retrieve
+	 * @param args arguments to use when creating a bean instance using explicit arguments
+	 * (only applied when creating a new instance as opposed to retrieving an existing one)
+	 * @param typeCheckOnly whether the instance is obtained for a type check,
+	 * not for actual use
+	 * @return an instance of the bean
+	 * @throws BeansException if the bean could not be created
+	 */
+	@SuppressWarnings("unchecked")
+	protected <T> T doGetBean(final String name, @Nullable final Class<T> requiredType,
+			@Nullable final Object[] args, boolean typeCheckOnly) throws BeansException {
+
+       // 这里是对beanName进行处理,判断是不是有别名
+		final String beanName = transformedBeanName(name);
+		Object bean;
+
+		// Eagerly check singleton cache for manually registered singletons.
+    // 这里返回的 sharedInstance是null.
+		Object sharedInstance = getSingleton(beanName);
+		if (sharedInstance != null && args == null) {
+			/*if (logger.isDebugEnabled()) {
+				if (isSingletonCurrentlyInCreation(beanName)) {
+					logger.debug("Returning eagerly cached instance of singleton bean '" + beanName +
+							"' that is not fully initialized yet - a consequence of a circular reference");
+				} else {
+					logger.debug("Returning cached instance of singleton bean '" + beanName + "'");
+				}
+			}*/
+			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
+		} else {
+			// Fail if we're already creating this bean instance:
+			// We're assumably within a circular reference.
+			if (isPrototypeCurrentlyInCreation(beanName)) {
+				throw new BeanCurrentlyInCreationException(beanName);
+			}
+
+			// Check if bean definition exists in this factory.
+            // 这里获取出来的 parentBeanFactory 是null
+			BeanFactory parentBeanFactory = getParentBeanFactory();
+			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
+				// Not found -> check parent.
+				String nameToLookup = originalBeanName(name);
+				if (parentBeanFactory instanceof AbstractBeanFactory) {
+					return ((AbstractBeanFactory) parentBeanFactory).doGetBean(
+							nameToLookup, requiredType, args, typeCheckOnly);
+				} else if (args != null) {
+					// Delegation to parent with explicit args.
+					return (T) parentBeanFactory.getBean(nameToLookup, args);
+				} else {
+					// No args -> delegate to standard getBean method.
+					return parentBeanFactory.getBean(nameToLookup, requiredType);
+				}
+			}
+
+            // typeCheckOnly 是false,也就进入了if里面
+			if (!typeCheckOnly) {
+                // 标记一个标记,后面应该是有用到.
+				markBeanAsCreated(beanName);
+			}
+
+			try {
+				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+                // 检查mdb,也就是判断mbd是否是抽象类,如果是抽象类的话,就会抛出异常.	
+				checkMergedBeanDefinition(mbd, beanName, args);
+
+				// Guarantee initialization of beans that the current bean depends on.
+                // mbd获取的dependsOn,这里是没有这个注解的.
+				String[] dependsOn = mbd.getDependsOn();
+				if (dependsOn != null) {
+					for (String dep : dependsOn) {
+						if (isDependent(beanName, dep)) {
+							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
+						}
+						registerDependentBean(dep, beanName);
+						try {
+							getBean(dep);
+						} catch (NoSuchBeanDefinitionException ex) {
+							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+									"'" + beanName + "' depends on missing bean '" + dep + "'", ex);
+						}
+					}
+				}
+
+                
+				// Create bean instance. 这里是单例的,然后进入到 createBean这个方法中来
+				if (mbd.isSingleton()) {
+					sharedInstance = getSingleton(beanName, () -> {
+						try {
+							return createBean(beanName, mbd, args);
+						}
+						catch (BeansException ex) {
+							// Explicitly remove instance from singleton cache: It might have been put there
+							// eagerly by the creation process, to allow for circular reference resolution.
+							// Also remove any beans that received a temporary reference to the bean.
+							destroySingleton(beanName);
+							throw ex;
+						}
+					});
+					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
+				} else if (mbd.isPrototype()) {
+					// It's a prototype -> create a new instance.
+					Object prototypeInstance = null;
+					try {
+						beforePrototypeCreation(beanName);
+						prototypeInstance = createBean(beanName, mbd, args);
+					}
+					finally {
+						afterPrototypeCreation(beanName);
+					}
+					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
+				} else {
+					String scopeName = mbd.getScope();
+					final Scope scope = this.scopes.get(scopeName);
+					if (scope == null) {
+						throw new IllegalStateException("No Scope registered for scope name '" + scopeName + "'");
+					}
+					try {
+						Object scopedInstance = scope.get(beanName, () -> {
+							beforePrototypeCreation(beanName);
+							try {
+								return createBean(beanName, mbd, args);
+							}
+							finally {
+								afterPrototypeCreation(beanName);
+							}
+						});
+						bean = getObjectForBeanInstance(scopedInstance, name, beanName, mbd);
+					} catch (IllegalStateException ex) {
+						throw new BeanCreationException(beanName,
+								"Scope '" + scopeName + "' is not active for the current thread; consider " +
+								"defining a scoped proxy for this bean if you intend to refer to it from a singleton",
+								ex);
+					}
+				}
+			} catch (BeansException ex) {
+				cleanupAfterBeanCreationFailure(beanName);
+				throw ex;
+			}
+		}
+
+		// Check if required type matches the type of the actual bean instance.
+		if (requiredType != null && !requiredType.isInstance(bean)) {
+			try {
+				T convertedBean = getTypeConverter().convertIfNecessary(bean, requiredType);
+				if (convertedBean == null) {
+					throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+				}
+				return convertedBean;
+			}
+			catch (TypeMismatchException ex) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("Failed to convert bean '" + name + "' to required type '" +
+							ClassUtils.getQualifiedName(requiredType) + "'", ex);
+				}
+				throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+			}
+		}
+		return (T) bean;
+	}
+
+
+	/**
+	 * Return the (raw) singleton object registered under the given name.
+	 * <p>Checks already instantiated singletons and also allows for an early
+	 * reference to a currently created singleton (resolving a circular reference).
+	 * @param beanName the name of the bean to look for
+	 * @param allowEarlyReference whether early references should be created or not
+	 * @return the registered singleton object, or {@code null} if none found
+	 */
+	@Nullable
+	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+		Object singletonObject = this.singletonObjects.get(beanName);
+		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+			synchronized (this.singletonObjects) {
+				singletonObject = this.earlySingletonObjects.get(beanName);
+				if (singletonObject == null && allowEarlyReference) {
+					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+					if (singletonFactory != null) {
+						singletonObject = singletonFactory.getObject();
+						this.earlySingletonObjects.put(beanName, singletonObject);
+						this.singletonFactories.remove(beanName);
+					}
+				}
+			}
+		}
+		return singletonObject;
+	}
+
+	/**
+	 * Mark the specified bean as already created (or about to be created).
+	 * <p>This allows the bean factory to optimize its caching for repeated
+	 * creation of the specified bean.
+	 * @param beanName the name of the bean
+	 这里将org.springframework.context.annotation.internalConfigurationAnnotationProcessor添加到alreadyCreated集合中
+	 */
+	protected void markBeanAsCreated(String beanName) {
+		if (!this.alreadyCreated.contains(beanName)) {
+			synchronized (this.mergedBeanDefinitions) {
+				if (!this.alreadyCreated.contains(beanName)) {
+					// Let the bean definition get re-merged now that we're actually creating
+					// the bean... just in case some of its metadata changed in the meantime.
+					clearMergedBeanDefinition(beanName);
+					this.alreadyCreated.add(beanName);
+				}
+			}
+		}
+	}
+
+
+
+	/**
+	 * Return a RootBeanDefinition for the given bean, by merging with the
+	 * parent if the given bean's definition is a child bean definition.
+	 * @param beanName the name of the bean definition
+	 * @param bd the original bean definition (Root/ChildBeanDefinition)
+	 * @param containingBd the containing bean definition in case of inner bean,
+	 * or {@code null} in case of a top-level bean
+	 * @return a (potentially merged) RootBeanDefinition for the given bean
+	 * @throws BeanDefinitionStoreException in case of an invalid bean definition
+	 */
+	protected RootBeanDefinition getMergedBeanDefinition(
+			String beanName, BeanDefinition bd, @Nullable BeanDefinition containingBd)
+			throws BeanDefinitionStoreException {
+
+		synchronized (this.mergedBeanDefinitions) {
+			RootBeanDefinition mbd = null;
+
+			// Check with full lock now in order to enforce the same merged instance.
+			if (containingBd == null) {
+				mbd = this.mergedBeanDefinitions.get(beanName);
+			}
+
+			if (mbd == null) {
+				if (bd.getParentName() == null) {
+					// Use copy of given root bean definition.
+					if (bd instanceof RootBeanDefinition) {
+						mbd = ((RootBeanDefinition) bd).cloneBeanDefinition();
+					}
+					else {
+						mbd = new RootBeanDefinition(bd);
+					}
+				}
+				else {
+					// Child bean definition: needs to be merged with parent.
+					BeanDefinition pbd;
+					try {
+						String parentBeanName = transformedBeanName(bd.getParentName());
+						if (!beanName.equals(parentBeanName)) {
+							pbd = getMergedBeanDefinition(parentBeanName);
+						}
+						else {
+							BeanFactory parent = getParentBeanFactory();
+							if (parent instanceof ConfigurableBeanFactory) {
+								pbd = ((ConfigurableBeanFactory) parent).getMergedBeanDefinition(parentBeanName);
+							}
+							else {
+								throw new NoSuchBeanDefinitionException(parentBeanName,
+										"Parent name '" + parentBeanName + "' is equal to bean name '" + beanName +
+										"': cannot be resolved without an AbstractBeanFactory parent");
+							}
+						}
+					}
+					catch (NoSuchBeanDefinitionException ex) {
+						throw new BeanDefinitionStoreException(bd.getResourceDescription(), beanName,
+								"Could not resolve parent bean definition '" + bd.getParentName() + "'", ex);
+					}
+					// Deep copy with overridden values.
+					mbd = new RootBeanDefinition(pbd);
+					mbd.overrideFrom(bd);
+				}
+
+				// Set default singleton scope, if not configured before.
+				if (!StringUtils.hasLength(mbd.getScope())) {
+					mbd.setScope(RootBeanDefinition.SCOPE_SINGLETON);
+				}
+
+				// A bean contained in a non-singleton bean cannot be a singleton itself.
+				// Let's correct this on the fly here, since this might be the result of
+				// parent-child merging for the outer bean, in which case the original inner bean
+				// definition will not have inherited the merged outer bean's singleton status.
+				if (containingBd != null && !containingBd.isSingleton() && mbd.isSingleton()) {
+					mbd.setScope(containingBd.getScope());
+				}
+
+				// Cache the merged bean definition for the time being
+				// (it might still get re-merged later on in order to pick up metadata changes)
+// 这里将传入进来的值,放入到mergedBeanDefinitions Map中                
+				if (containingBd == null && isCacheBeanMetadata()) {
+					this.mergedBeanDefinitions.put(beanName, mbd);
+				}
+			}
+
+			return mbd;
+		}
+	}
+
+-----------------------------
+createBean     
+
+	/**
+	 * Actually create the specified bean. Pre-creation processing has already happened
+	 * at this point, e.g. checking {@code postProcessBeforeInstantiation} callbacks.
+	 * <p>Differentiates between default bean instantiation, use of a
+	 * factory method, and autowiring a constructor.
+	 * @param beanName the name of the bean
+	 * @param mbd the merged bean definition for the bean
+	 * @param args explicit arguments to use for constructor or factory method invocation
+	 * @return a new instance of the bean
+	 * @throws BeanCreationException if the bean could not be created
+	 * @see #instantiateBean
+	 * @see #instantiateUsingFactoryMethod
+	 * @see #autowireConstructor
+	 */
+	protected Object doCreateBean(final String beanName, final RootBeanDefinition mbd, final @Nullable Object[] args)
+			throws BeanCreationException {
+
+		// Instantiate the bean.
+		BeanWrapper instanceWrapper = null;
+		if (mbd.isSingleton()) {
+			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
+		}
+		if (instanceWrapper == null) {
+			/**
+			 *
+			 */
+			instanceWrapper = createBeanInstance(beanName, mbd, args);
+		}
+		final Object bean = instanceWrapper.getWrappedInstance();
+		Class<?> beanType = instanceWrapper.getWrappedClass();
+		if (beanType != NullBean.class) {
+			mbd.resolvedTargetType = beanType;
+		}
+
+		// Allow post-processors to modify the merged bean definition.
+		synchronized (mbd.postProcessingLock) {
+			if (!mbd.postProcessed) {
+				try {
+					// TODO 第三次调用后置处理器调用
+					applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
+				} catch (Throwable ex) {
+					throw new BeanCreationException(mbd.getResourceDescription(), beanName,
+							"Post-processing of merged bean definition failed", ex);
+				}
+				mbd.postProcessed = true;
+			}
+		}
+
+		// Eagerly cache singletons to be able to resolve circular references
+		// even when triggered by lifecycle interfaces like BeanFactoryAware.
+		boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
+				isSingletonCurrentlyInCreation(beanName));
+		if (earlySingletonExposure) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Eagerly caching bean '" + beanName +
+						"' to allow for resolving potential circular references");
+			}
+			// TODO 第四次调用后置处理器
+			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
+		}
+
+		// Initialize the bean instance.
+		Object exposedObject = bean;
+		try {
+			// TODO 第五次调用后置处理器 ; 第六次.  后置处理器调用了二个
+			populateBean(beanName, mbd, instanceWrapper);
+
+			// TODO 第七次后置处理器执行 ; 和 第八次. 后置处理器调用了二个
+			exposedObject = initializeBean(beanName, exposedObject, mbd);
+		} catch (Throwable ex) {
+			if (ex instanceof BeanCreationException && beanName.equals(((BeanCreationException) ex).getBeanName())) {
+				throw (BeanCreationException) ex;
+			}
+			else {
+				throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Initialization of bean failed", ex);
+			}
+		}
+
+		if (earlySingletonExposure) {
+			Object earlySingletonReference = getSingleton(beanName, false);
+			if (earlySingletonReference != null) {
+				if (exposedObject == bean) {
+					exposedObject = earlySingletonReference;
+				} else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
+					String[] dependentBeans = getDependentBeans(beanName);
+					Set<String> actualDependentBeans = new LinkedHashSet<>(dependentBeans.length);
+					for (String dependentBean : dependentBeans) {
+						if (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) {
+							actualDependentBeans.add(dependentBean);
+						}
+					}
+					if (!actualDependentBeans.isEmpty()) {
+						throw new BeanCurrentlyInCreationException(beanName,
+								"Bean with name '" + beanName + "' has been injected into other beans [" +
+								StringUtils.collectionToCommaDelimitedString(actualDependentBeans) +
+								"] in its raw version as part of a circular reference, but has eventually been " +
+								"wrapped. This means that said other beans do not use the final version of the " +
+								"bean. This is often the result of over-eager type matching - consider using " +
+								"'getBeanNamesOfType' with the 'allowEagerInit' flag turned off, for example.");
+					}
+				}
+			}
+		}
+
+		// Register bean as disposable.
+		try {
+			registerDisposableBeanIfNecessary(beanName, bean, mbd);
+		} catch (BeanDefinitionValidationException ex) {
+			throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Invalid destruction signature", ex);
+		}
+		return exposedObject;
+	}
+```
+
