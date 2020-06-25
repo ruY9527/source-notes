@@ -148,3 +148,20 @@ setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextIniti
 		return instances;
 	}
 ```
+
+
+
+
+
+####  总结 :
+
+ SpringApplication 构造函数方法,还是很好理解的, 代码阅读起来也很明白.
+
+ 1 :  对参数的检验和判断不是null,然后转化为集合,赋值给其属性.
+
+ 2 :  判断一些 WebApplicationType的类型.  SERVLET. 当然Spring5好像引入了一个 REACTIVE这个,可能很早之前就有了,因为我个人也是看Spring5的新特性才看到的这个.
+
+3 :  根据 ApplicationContextInitializer.class 和  ApplicationListener.class , 从 META-INF/spring.factories 文件里面读取出对应的内容(这里的内容也就是一些类的全限定名字,然后分好类的),并且对其进行实例化.
+
+4 : 最后获取一下启动类的class值,将其赋值给其内部的变量 mainApplicationClass .
+
