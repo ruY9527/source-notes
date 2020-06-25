@@ -151,6 +151,63 @@ setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextIniti
 
 
 
+#### 添加 ApplicationContextInitializer 子类 
+
+ 来手动添加一个 ApplicationContextInitializer 的子类,
+
+```java
+package com.yang.bootsourcelearn.init;
+
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+
+/***********************************************************************
+ *<PRE>
+ *
+ *  File Name       : 
+ *
+ *  Creation Date   : 20-6-25
+ *
+ *  Author          : Gavin
+ *
+ *  Purpose         : 
+ *
+ *  History         : 
+ *
+ *</PRE>
+ ***************************************************************************/
+public class GavinYangApplicationContextInitializer implements ApplicationContextInitializer {
+    public GavinYangApplicationContextInitializer(){
+        System.out.println("GavinYang Init Bean");
+    }
+
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+    }
+}
+
+```
+
+
+
+然后在 resources 目录下面创建一个  META-INF 目录 , 再在 META-INF目录下创建一个 spring.factories 文件, 然后文件里面的内容我们就仿照SpringBoot里面的. 也给他加上一行
+
+```java
+# Application Context Initializersorg.springframework.context.ApplicationContextInitializer=\com.yang.bootsourcelearn.init.GavinYangApplicationContextInitializer
+```
+
+
+
+然后将判断给打到  setInitializers() 这个方法,根据去,  跟到断点: org.springframework.core.io.support.SpringFactoriesLoader#loadSpringFactories 到这里, 然后看 result 中,
+
+org.springframework.context.ApplicationContextInitializer -> {LinkedList@1641} size = 8 , 这个 LinkedList中就有我们自定义的  com.yang.bootsourcelearn.init.GavinYangApplicationContextInitializer 的方法,
+
+紧接着走完 createSpringFactoriesInstances 方法, 就可以看到我们无参构造函数中打印的 GavinYang Init Bean . 所以自顶一个还是很简单的. 由于我们不需要特别加什么,所以就没有对 重写的 initialize 进行什么添加. 
+
+
+
+同样的 ApplicationListener.class , 我们也可以使用这样的方法进行自定义.
+
 
 
 ####  总结 :
