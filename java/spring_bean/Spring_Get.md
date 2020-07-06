@@ -413,8 +413,10 @@ registerCustomEditors()方法,也就是注册Customer修改 TODO后面阅读
 */            
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
+//从 beanWarpper中获取出 instance 和 class        
 		final Object bean = instanceWrapper.getWrappedInstance();
 		Class<?> beanType = instanceWrapper.getWrappedClass();
+// 获取出来的 beanTyoe 不是 NullBean.class，        
 		if (beanType != NullBean.class) {
 			mbd.resolvedTargetType = beanType;
 		}
