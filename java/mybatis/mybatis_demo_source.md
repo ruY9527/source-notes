@@ -335,6 +335,8 @@ sqlSessionFactory.openSession() 方法:
 
 org.apache.ibatis.session.defaults.DefaultSqlSessionFactory#openSessionFromDataSource
 
+该方法主要就是获取一个SqlSession会话.
+
 ```java
   private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
     Transaction tx = null;
@@ -365,3 +367,45 @@ org.apache.ibatis.session.defaults.DefaultSqlSessionFactory#openSessionFromDataS
 
 
 
+
+
+session.getMapper(PhoneMapper.class); 获取Mapper的方法
+
+
+
+org.apache.ibatis.session.defaults.DefaultSqlSession#getMapper
+
+这里如果细心的话,可以看到其debug的这个类的值或者使用输出给值打印出来:System.out.println(phoneMapper.getClass().toString()); -->class com.sun.proxy.$Proxy0,就可以很明显的看到这是一个代理类了.
+
+```java
+// PhoneMapper phoneMapper = session.getMapper(PhoneMapper.class); 
+@Override
+  public <T> T getMapper(Class<T> type) {
+    return configuration.getMapper(type, this);
+  }
+
+
+  public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+    return mapperRegistry.getMapper(type, sqlSession);
+  }
+
+
+---------------------
+// org.apache.ibatis.binding.MapperRegistry#getMapper    
+  public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+ // 从knownMappers这个集合中获取出对应的Mapper,根据类名字.   
+    final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
+ //如果不能根据类名字从该集合中获取出来的话,就会抛出异常来.   
+    if (mapperProxyFactory == null) {
+      throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
+    }
+    try {
+// 先new一个MapperProxy类,传入其构造方法的参数是
+//sqlSession/mapperInterface(也就是我们的接口)/ methodCache
+ // 最后使用Proxy.newProxyInstance()来创建出一个对象(这里也就是使用了反射).       
+      return mapperProxyFactory.newInstance(sqlSession);
+    } catch (Exception e) {
+      throw new BindingException("Error getting mapper instance. Cause: " + e, e);
+    }
+  }    
+```
