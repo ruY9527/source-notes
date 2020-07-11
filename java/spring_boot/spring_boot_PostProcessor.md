@@ -38,6 +38,22 @@ ApplicationListenerDetector
 
 
 
+####  beanPostProcessor 添加
+
+ AbstractBeanFactory#beanPostProcessors 可以看到beanFactory中的beanPostProcessors属性字段,该字段就是对BeanPostProcessor进行存储的集合.
+
+在 refresh() 方法中进行添加 beanPostProcessor进来的	 可以看到主要添加 beanPostProcessor进来的地方是 registerBeanPostProcessors 方法.  可以看到这里是添加了 十二个.
+
+- ​	走完 prepareBeanFactory方法:  添加了 ApplicationContextAwareProceesor和ApplicationListenerDetector
+
+-  postProcessBeanFactory 走完 : 添加 WebApplicationContextServletContextAwareProceesor
+
+- invokeBeanFactoryPostProcessors 走完: 添加 ConfigurationClassPostProcessor$ImportAwareBeanPostProcessor 进来
+
+-  registerBeanPostProcessors 走完 :  PostProcessorRegisrationDelegate$BeanPostProceesorChecker/ConfigurationPropertiesBindingPostProcessor/AsyncAnnotationBeanPostProcessor/WebServerFactoryCustomizerBeanPostProcessor/ErrorPageRegistrarBeanPostProcessor/CommonAnnotationBeanPostProcessor/ScheduleAnnotationBeanPostProcessor/ApplicationListenerDetector
+
+  
+
 #### ApplicationContextAwareProcessor
 
  该Processor的针对性还是比较强的,主要就是处理 EnvironmentAware/EmbeddedValueResolverAware/ResourceLoaderAware/ApplicationEventPublisherAware/MessageSourceAware/ApplicationContextAware  这几种情况的
@@ -569,3 +585,5 @@ TODO : 后续 debug 进行跟进看
 ####  总结
 
  		除了SpringBoot中没有做任何配置中有的这些之外,肯定是还有很多其他的.
+
+​		 当你在debug的时候,你会发现,有一些 processor 在初始化之前的名字 : 比如:org.springframework.context.annotation.internalAutowiredAnnotationProcessor ,其实它就是一个AutowiredAnnotationProcessor才是正确的,但是该名字前面却是有 internal 这个单词的,也就是内部的意思. 所以从名字上看,还是可以通过名字进行初始化区分的.  
