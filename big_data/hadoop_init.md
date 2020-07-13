@@ -158,6 +158,33 @@ export PATH=$PATH:$HADOOP_HOME/sbin
 2.  start-dfs.sh      执行完指令后,你可以使用 jps 来查询进程
 3.  start-yarn.sh   启动yarn, ResourceManger 和 NameNode不是在一台机器上的话,就需要去ResourceManager所在的机器上启动 YARN.  比如这里我就在hp102上执行的此指令.
 
+效果图可以在 img目录下是可以看到的.
+
+
+
+#### hadoop 搭建总结
+
+ 至此, hadoop的集群模式就已经搭建完了。  总结一下搭建的总体流程吧.
+
+-   先在你的 VM 虚拟机上,安装好三台linux,这里我采用的是Centos
+-   然后hostname修改下.  /etc/hosts 下配置
+-   配置三台 linux 之间的免密登陆 
+-  配置JAVA 环境, 然后 scp 指令 copy 到其他三台server 上去.  source /etc/profile 下，然后输入 java -version就可以看到配置的Java版本信息了
+-   hadoop 的包 copy到服务上,先也是在一台linux上配置好. 这里的配置好,当然也包括那些 xml 等文件的配置.   还记得slaves 创建配置下.  ,然后scp 到其他的几台上去.    hadoop 也可以要配置到/ect/profile 环境变量中去,不然你每次启动的话，都得跑到该目录下去, 怪烦人的.
+-    如果是第一个启动的话,就format 一下 nameNode , 如果不是的话,就不用format. 然后就可以执行 start-dfs.sh 和 start.yarn.sh  指令了。   如果是关闭的话，指令也就是start 换成 stop 即可.
+
+
+
+Note : 防火墙/端口都要能通.  搭建完了,可以通过相应的地址来进行访问是否搭建成功了.  或者使用jps进程来查询,如果有问题的话,可以看启动指令中输出的log具体的位置.
+
+至此, 搭建部分ok了
+
+------
+
+
+
+
+
 
 
   
