@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        <span>name:{{name}}</span>
+        <input type="text" v-model="name">
+        <span>更多： {{like.drink}}</span>
+        <input type="text" v-model="like.drink">
+    </div>
+</body>
+
+</html>
+
+
+
+<script>
+    class Vue {
+        constructor(vm) {
+            this.$data = vm.data
+            Observer(this.$data)
+            compile(vm.el, this)
+
+        }
+    }
+
+    //数据劫持 监听实例里的数据
+    function Observer(data) {
+        //递归出口
+        if (!data || typeof data !== 'object') return
+        //创建dependency实例
+        const dependency = new Dependency()
+        Object.keys(data).forEach((key) => {
+            let value = data[key]
+            Observer(value)   //递归 子属性数据劫持
+            Object.defineProperty(data, key, {
+                enumerable: true,
+                configurable: true,
+                get() {
+                    console.log(`访问了属性${key}的值 ${value}`)
+                    console.log(Dependency.temp, 'temp')
+                    //订阅者加入依赖实例的数组
+                    Dependency.temp && dependency.addSub(Dependency.temp)
+                    return value
+                },
+                set(newValue) {
+                    console.log(`属性${key}的值由 ${value} 改为 ${newValue}`)
+                    value = newValue
+                    Observer(newValue)  //更新后属性进行数据劫持
+                    dependency.notify()
+                }
+            })
+        })
+    }
+
+    //html 模板解析
+    function compile(element, vm) {
+        vm.$el = document.querySelector(element)
+        const fragment = document.createDocumentFragment()
+        let child
+        while (child = vm.$el.firstChild) {
+            fragment.append(child)
+        }
+        fragment_compile(fragment)
+
+        //替换文档碎片的内容
+        function fragment_compile(node) {
+            const pattern = /\{\{\s*(\S+)s*\}\}/
+            if (node.nodeType === 3) {   //类型为3时 为文本节点
+                const curNodeValue = node.nodeValue
+                const result = pattern.exec(node.nodeValue)
+                if (result) {
+                   
+                    const value = result[1].split('.').reduce((total, current) => total[current], vm.$data)
+                    // //替换模板字符串
+                    node.nodeValue = curNodeValue.replace(pattern, value)
+                    // console.log(node.nodeValue, 'node.nodeValue')
+                    //创建订阅者
+                    new Watcher(vm, result[1], newValue => {
+                        //替换模板字符串
+                        node.nodeValue = curNodeValue.replace(pattern, newValue)
+                    })
+                }
+                return
+            }
+            if(node.nodeType===1&&node.nodeName==='INPUT' ){
+                const attr=Array.from(node.attributes)
+                attr.forEach(i=>{
+                    if(i.nodeName==='v-model'){
+                        console.log( i.nodeValue.split('.'),'split')
+                       
+                        const value = i.nodeValue.split('.').reduce((total, current) => total[current], vm.$data)
+                        // console.log(node.nodeValue,'node')
+                        node.value=value
+                        //   console.log(value,'value')
+                       new Watcher(vm,i.nodeValue,newValue=>{
+                        node.value=newValue
+                       })
+                       //为节点添加监听事件
+                       node.addEventListener('input',(e)=>{
+                       
+                        //['like','drink']
+                        const attr1=i.nodeValue.split('.')
+                        //['like'] 取最外层
+                        const  attr2=attr1.slice(0,attr1.length-1)
+                       
+                        //vm.$data.like
+                        
+                        const target=attr2.reduce((total,current)=>total[current],vm.$data)
+                        console.log(target[attr1[attr1.length-1]],'target')
+
+                        //vm.$data.like['fruit']=e.target.value
+                        
+                        target[attr1[attr1.length-1]]=e.target.value
+                       })
+                    }
+                })
+            }
+            node.childNodes.forEach(child => fragment_compile(child))
+        }
+
+        //插入页面中
+        vm.$el.appendChild(fragment)
+    }
+
+    //依赖 收集和通知订阅者
+    class Dependency {
+        constructor() {
+            this.subscriber = []
+        }
+        addSub(sub) {
+            this.subscriber.push(sub)
+        }
+        notify() {
+            this.subscriber.forEach(item => item.update())
+        }
+    }
+
+    class Watcher {
+        constructor(vm, key, callback) {
+            this.vm = vm
+            this.key = key
+            this.callback = callback
+            //临时属性 触发getter
+            Dependency.temp = this
+            this.key.split('.').reduce((total, current) => total[current], vm.$data)
+            Dependency.temp = null
+        }
+        update() {
+            const value = this.key.split('.').reduce((total, current) => total[current], vm.$data)
+            this.callback(value)
+        }
+    }
+
+
+
+
+    const vm = new Vue({
+        el: '#app',
+        data: {
+            name: 'gantian',
+            like: {
+                friut: 'apple',
+                drink: 'milk'
+            }
+        }
+    })
+</script>
