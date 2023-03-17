@@ -18,7 +18,7 @@ function toTree(source){
     let tree=[]
     let map=new Map()
     source.forEach((item,index)=>{
-       return map.set(item.id,index)
+      return map.set(item.id,index)
     })
     source.forEach(item => {
         if(map.has(item.pid)){  
