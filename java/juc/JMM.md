@@ -179,7 +179,7 @@ public class FinalExample {
 - 编译器会在final域的写之后，构造函数return之前，插入一个StoreStore屏障。这个屏障禁止处理器把final域的写重排序到构造函数之外。
 
 对于前面的程序，下面是一种可能的执行序列
-![image.png](./images/final_write.png)
+![image.png](https://github.com/ruY9527/source-notes/blob/master/java/juc/imagess/final_write.png)
 
 在上图的执行序列中，写普通域的操作(i=1)被编译器重排序到了构造器之外，导致读线程B错误的读取变量i的初始化的值。而由于写final域重排序规则的限定，写final域的操作(j=2)被限定在了构造函数之内，读线程B必然能够正确读到正确的值。
 
@@ -191,7 +191,7 @@ public class FinalExample {
 - 编译器会在读final域操作的前面插入一个LoadLoad屏障。
 
 下面是前面程序的另外一种执行序列(假设写线程A没有发生任何重排序，同时程序在不遵守[间接依赖的处理器](#间接依赖关系)上执行)
-![image.png](./images/final_read.png)
+![image.png](https://github.com/ruY9527/source-notes/blob/master/java/juc/images/final_read.png)
 
 在上图的执行序列中，读对象的普通域的操作被处理器重排序到读对象引用之前。读普通域时，由于该域还没有被写线程A写入，因此这是一个错误的读取操作。而由于读final域的重排序规则的限定，会把读对象final域的操作限定在读对象引用之后，由于此时final域已经被A线程初始化过了，所以这是一个正确的读取操作。
 
@@ -233,7 +233,7 @@ public class FinalReferenceExample {
 对上面的示例程序，假设首先线程A执行writerOne()方法，执行完后线程B执行writerTwo()方法，执行完后线程C执行reader()方法。
 
 下面是一种可能的线程执行时序。
-![image](./images/final_ref.png)
+![image](https://github.com/ruY9527/source-notes/blob/master/java/juc/images/final_ref.png)
 
 JMM可以确保读线程C至少能看到写线程A在构造函数中对final引用对象的成员域的写入。即C至少能看到数组下标0的值为1，而写线程B对数组元素的写入，读线程C可能看得到也可能看不到。JMM不保证线程B的写入对读线程C可见，因为写线程B和读线程C之间存在数据竞争，此时的执行结果不可预知。
 
@@ -270,7 +270,7 @@ public class FinalReferenceEscapeExample {
 假设线程A执行writer()方法，线程B执行reader()方法。这里的操作②使得对象还未完成构造前就为线程B可见。即使这里的操作②是构造函数的最后一步，且在程序中操作②排在操作①后面，执行read()方法的线程仍然可能无法看到final域被初始化后的值，因为这里的操作①和操作②之间可能被重排序。
 
 实际的执行时序可能如下：
-![](./images/final_run.png)
+![image](https://github.com/ruY9527/source-notes/blob/master/java/juc/images/final_run.png)
 
 在构造函数返回前，被构造对象的引用不能为其他线程可见。因为此时final域可能还没有初始化。在构造函数返回后，任意线程都将保证能看到final域正确初始化之后的值。
 
@@ -294,7 +294,7 @@ public class FinalReferenceEscapeExample {
 
 ##### 八大原子操作示意图
 
-![image.png](images/JMM_aotm.png)
+![image.png](https://github.com/ruY9527/source-notes/blob/master/java/juc/images/JMM_aotm.png)
 
 lock和unlock是在锁定内存时候使用
 read、load可以称为load操作
