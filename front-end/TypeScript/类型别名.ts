@@ -29,3 +29,20 @@ printTeacher({
     hobby:['reading'],
     carrer:'teaching'
 })
+
+
+//使用类型别名给类型添加别名
+type fruit=string
+type name=()=>string
+type union=fruit|name
+function getInfo(par:union){
+    if(typeof par==='string'){
+        return par
+    }
+    return par()
+}
+
+
+//定义字符串字面量类型
+type Colors='red'|'pink'|'green'|'yellow'
+function getColor(color:Colors){}
