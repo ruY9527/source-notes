@@ -9,10 +9,20 @@ const server = http.createServer((request, response) => {
     response.statusMessage = 'this is a desc'
     //响应头
     response.setHeader('content-type', 'text/html;charset=utf-8')
-    //响应体
-    // 读取文件内容
-    const content=fs.readFileSync('../new.html')
-    response.end(content)
+    //获取请求路径
+    const {pathname}=new URL(request.url,'http://127.0.0.1')
+    console.log(pathname,'pathname')
+    if(pathname==='/'){
+        //响应体
+        // 读取文件内容
+        const content=fs.readFileSync('../new.html')
+        response.end(content)
+    }else if(pathname==='/document/new.css'){
+        const css=fs.readFileSync('../document/new.css')
+        response.end(css)
+    }
+
+    response.end('not found')
 })
 server.listen(3000, () => {
     console.log('服务已经启动！')
