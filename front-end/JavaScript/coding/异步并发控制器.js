@@ -8,35 +8,34 @@ class Scheduler {
     addTask(timeout, str) {
         this.queue.push(
             ()=>{
-                new Promise((resolve,reject)=>{
+           return new Promise((resolve,reject)=>{
                     setTimeout(()=>{
                         resolve(str)
                     },timeout)
-                }).then((str)=>{
-                    console.log(str,'str')
                 })
-        }
-        )
-        this.start()
+        })
+        console.log(this.queue,'this.queue')
     }
-   async  start() {
+     start() {
         if (this.number < this.limit&&this.queue.length) {
             var run = this.queue.shift()
             this.number++
-            await run()
-            this.number--
+            run().then((str)=>{
+                console.log(str,'str')
+                this.number--
                 this.start()
-            return
-            
+            })
+            this.start()  
         }
     }
 }
 let sch=new Scheduler(2)
 sch.addTask(1,'1')
-sch.addTask(5,'2')
+sch.addTask(5,'5')
 sch.addTask(3,'3')
-sch.addTask(2,'5')
+sch.addTask(2,'2')
 sch.addTask(4,'4')
+sch.start()
 
 
 // function createAsyncWorker(capacity) {

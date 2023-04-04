@@ -49,11 +49,11 @@ let schedular = new Schedular3()
       console.log("2s后执行完毕")
     })
   })
-  schedular.add(() => {
-    return timeout(1000).then(() => {
-      console.log("1s后执行完毕")
-    })
-  })
+  // schedular.add(() => {
+  //   return timeout(1000).then(() => {
+  //     console.log("1s后执行完毕")
+  //   })
+  // })
   schedular.add(() => {
     return timeout(4000).then(() => {
       console.log("4s后执行完毕")

@@ -1,3 +1,4 @@
+const { constants } = require("buffer")
 
 function deepClone(obj) {
     //排除基本数据类型 和函数（可以不用深拷贝 不会发生变化）
@@ -68,8 +69,9 @@ let obj2 = {
 testObj.to = obj2
 console.log(testObj)
 
-// const newObj = deepCloneReview(testObj)
-// console.log(newObj)
+
+const newObj = deepClone(testObj)
+console.log(newObj)
 
 
 // function deepCloneReview(obj){
@@ -102,3 +104,6 @@ console.log(testObj)
 
 //     return temp
 // }
+
+
+console.log([...[...'abc']])

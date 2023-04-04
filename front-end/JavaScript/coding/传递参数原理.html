@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- <button onclick=handle>click me</button> -->
+</body>
+<script>
+    var obj1 = {
+        value: 111
+    }
+    var two = {
+        value: 222
+    }
+    debugger
+    function handle(obj) {
+        obj.value = 'new'
+        obj = two
+        return obj
+    }
+    let foo=handle(obj1)
+    console.log(foo)
+    console.log(obj1)
+// debugger
+//     var bb = 1
+//     function aa(bb) {
+//         console.log(bb, 'bb')
+//         this.bb = 2
+//         console.log(bb, 'bb1')
+
+//     }
+//     aa(bb)
+//     console.log(bb)
+</script>
+
+</html>

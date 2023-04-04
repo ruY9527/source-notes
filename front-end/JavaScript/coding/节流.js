@@ -5,7 +5,7 @@ const throttle = (fun, delay) => {
     let pre = 0
     return function (...args) {
         let cur = new Date().valueOf()
-        if (cur - old > delay) {
+        if (cur - pre > delay) {
             fun.apply(this, args)
             pre = cur
         }
@@ -25,6 +25,7 @@ const _throttle=(fun,delay)=>{
     }
 
 }
+
 
 //3.第一次触发 最后一次触发
 

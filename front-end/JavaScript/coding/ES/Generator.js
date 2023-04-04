@@ -140,6 +140,7 @@ var gen = function* gen() {
 }
 var g = gen();
 console.log(g.next());
+console.log(g.next());
 try {
     throw new Error();
 } catch (e) {

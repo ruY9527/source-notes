@@ -35,7 +35,7 @@ function formatCircleRef(obj, jsonPath) {
         if (path) {
             return path
         } else {
-            pathRef.set(obj, jsonPath)
+            pathRef.set(obj, jsonPath)  
         }
         //遍历对象及子属性
         if (Array.isArray(obj)) {
@@ -55,7 +55,38 @@ function formatCircleRef(obj, jsonPath) {
     } else {
         return obj
     }
-
 }
 
 console.log(formatCircleRef(user, '$'))
+
+let pathMap=new WeakMap()
+function test(obj,pathJson){
+    let path=pathMap.get(obj)
+    if(path){
+        return path
+    }else{
+        pathMap.set(obj,path)
+    }
+    if(isObject(obj)){
+        if(Array.isArray(obj)){
+            return obj.map((item,index)=>{
+                return test(item,`${pathJson}['${index}']`)
+            })
+        }else{
+            let temp={}
+            Object.keys(obj).forEach(key=>{
+                let value=obj[key]
+                temp[key]=test(value,`${pathJson}['${key}']`)
+            })
+        }
+        return temp
+    }else{
+        return obj
+    }
+
+}
+let a=[1,2,[3,4]]
+let b={x:1}
+a.push(b)
+b.exec=a
+console.log(test(user,'$'))

@@ -23,3 +23,4 @@ for( const {name:x,family:{mother:y,father:z},age:age} of people){
     console.log(y,'mother')
     console.log(z,'father')
 }
+

@@ -185,6 +185,7 @@ class myPromise {
 			}
 		})
 	}
+	
 }
 // /**
 //  * 对resolve()、reject() 进行改造增强 针对resolve()和reject()中不同值情况 进行处理
@@ -447,4 +448,32 @@ console.log(3);
 
 
 
+
+Promise.prototype._all=(promises)=>{
+	let count=0
+	let result
+	return new Promise((resolve,reject)=>{
+		if(Array.isArray(promises)){
+			if(promises.length===0) return
+			promises.forEach((item,index)=>{
+				if(item instanceof Promise){
+					Promise.resolve(item).then(value=>{
+						count++
+						result[index]=value
+						count===promises.length&&resolve(result)
+					},reason=>{
+						reject(reason)
+					})
+
+				}else{
+					count++
+					result[index]=item
+					count===promises.length&&resolve(result)
+
+				}
+			})
+		}
+	})
+
+}
 

@@ -43,3 +43,5 @@ let obj={
 //Promise.resolve()会将obj转为promsie对象，然后立即执行里面的then方法
 
 Promise.resolve(obj).then((value)=>console.log(value))     //2
+
+

@@ -107,3 +107,9 @@ console.log(Array.from(b))[1, 2, 'c']
 for (let item of Array.from(b)) {
     console.log(item)      //1 2 c
 }
+
+function aa(){
+    console.log('aaa')
+}
+aa.animal='dog'
+console.log(aa)
