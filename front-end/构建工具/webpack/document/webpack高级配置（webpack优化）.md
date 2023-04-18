@@ -5,7 +5,7 @@
    * 提升开发体验（sourceMap)
    * 提升打包构建速度(HotModuleReplacement、oneOf、Include/Exclude 、Cache、Thread)
    * 减少代码体积(Tree Shaking、Babel、Image Minimizer)
-   * 优化代码运行性能（Code Split）
+   * 优化代码运行性能（Code Split、Preload/Prefetch、NetWork Cache、Core-js、PWA）
 
 2. ==SourceMap==
 
@@ -107,4 +107,47 @@
       * **分割文件，按需加载**
     * 使用场景：
       * todo
+    
+12. ==Preload/Prefetch==
+
+    * 前面已经做了代码分隔，同时使用import动态导入语法进行按需加载，但是有时候：用户点击click按钮才加载这个资源，如果体积过大，用户会感觉明显卡顿效果
+
+    * 我们想在浏览器空闲时间，加载后续需要使用的资源，就需要用到Preload/Prefetch
+
+    * 是什么：
+
+      * Preload: 告诉浏览器立即加载资源
+
+      * Prefetch：告诉浏览器在空闲时才加载资源
+
+      * 共同点：他们都只加载资源，并不执行；都有缓存
+
+      * 区别：
+
+        * Preload加载优先级高
+        * Preload只能加载当前页面需要使用的资源，Prefetch可以加载当前页资源，也可以加载下一页资源
+
+      * 问题：
+
+        * 两个都兼容性比较差（Preload好点）
+
+          
+
+13. ==Core-js==
+
+    * 过去使用Babel对js代码进行兼容性处理，使用@babel/preset-env智能预设处理兼容性问题，他能将ES6的一些语法进行编译转换，比如箭头函数，扩展运算符等。
+    * 但是如果是async函数、promise对象、数组的一些方法（includes）等，没办法处理
+    * 是什么：
+      * 专门做ES6以上的API的polyfill
+      * polyfill（垫片/补丁）。就是用社区上提供的一段代码，让我们在不兼容某些新特性的浏览器上，使用该新特性
+
+14. ==PWA==
+
+    * 开发Web App项目，一旦项目处于连线状态，就没法访问了
+    * 我们希望给项目提供离线体验
+    * 是什么：
+      * 渐进式网络应用程序：可以提供类似于native app（原生应用程序）体验的Web App技术
+      * 主要是，**在离线时应用程序能够继续运行功能**，内部通过Service Workers技术实现的
+
+15. 
 

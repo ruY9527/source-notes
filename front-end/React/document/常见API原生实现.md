@@ -18,7 +18,11 @@
 
          <img src="C:\Users\firefly-g\AppData\Roaming\Typora\typora-user-images\image-20230404120930387.png" alt="image-20230404120930387" style="zoom:50%;" />
 
-      6. promise.all
+      6. promise实现
+
+         
+
+      7. promise.all
 
          <img src="C:\Users\firefly-g\AppData\Roaming\Typora\typora-user-images\image-20230404133354771.png" alt="image-20230404133354771" style="zoom:50%;" />
 
@@ -38,15 +42,35 @@
 
             
 
+            
+
             10. new实现
 
                 <img src="C:\Users\firefly-g\AppData\Roaming\Typora\typora-user-images\image-20230404140000079.png" alt="image-20230404140000079" style="zoom:50%;" />
 
-            11. 环形引用对象序列化
+            11. typeOf实现
+
+                ![image-20230418100512693](C:\Users\firefly-g\AppData\Roaming\Typora\typora-user-images\image-20230418100512693.png)
+
+            12. 环形引用对象序列化
 
                 ​	
 
                 <img src="C:\Users\firefly-g\AppData\Roaming\Typora\typora-user-images\image-20230404140223127.png" alt="image-20230404140223127" style="zoom:50%;" />
+
+                
+
+            13. 扁平数据转tree
+
+                ![image-20230418095251348](C:\Users\firefly-g\AppData\Roaming\Typora\typora-user-images\image-20230418095251348.png)
+
+                
+
+            14. 数组扁平化
+
+                ![image-20230418095452910](C:\Users\firefly-g\AppData\Roaming\Typora\typora-user-images\image-20230418095452910.png)
+
+            
 
             
 

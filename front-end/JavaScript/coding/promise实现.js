@@ -477,3 +477,7 @@ Promise.prototype._all=(promises)=>{
 
 }
 
+let p=new Promise((rej,ful)=>{
+	ful(1)
+})
+p.then((val)=>{console.log(val); return 3}).catch((e)=>console.log(e)).then((e)=>console.log(e))

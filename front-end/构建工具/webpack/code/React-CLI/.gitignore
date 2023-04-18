@@ -1,0 +1,6 @@
+.vscode/**
+node_modules/
+dest/
+.history/
+*.DS_Store
+jsConfig.json
