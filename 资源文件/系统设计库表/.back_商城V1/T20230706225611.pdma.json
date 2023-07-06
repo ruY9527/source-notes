@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.6.0",
   "createdTime": "2023-7-1 23:10:36",
-  "updatedTime": "2023-7-6 22:56:34",
+  "updatedTime": "2023-7-6 22:56:11",
   "dbConns": [],
   "profile": {
     "default": {
@@ -3988,8 +3988,8 @@
         },
         {
           "defKey": "tenant_id",
-          "defName": "租户ID",
-          "comment": "租户ID",
+          "defName": "租户号",
+          "comment": "",
           "type": "",
           "len": 32,
           "scale": "",
@@ -4004,7 +4004,7 @@
           "id": "7DDCEB82-BF78-496E-A4B5-E11986EB8BE2"
         },
         {
-          "defKey": "create_by",
+          "defKey": "CREATED_BY",
           "defName": "创建人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -4021,7 +4021,7 @@
           "id": "3D6A64FB-FF63-4207-9364-9345F3421A62"
         },
         {
-          "defKey": "create_time",
+          "defKey": "CREATED_TIME",
           "defName": "创建时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -4038,7 +4038,7 @@
           "id": "63141CE9-C039-4806-B815-1E392C83D234"
         },
         {
-          "defKey": "update_by",
+          "defKey": "UPDATED_BY",
           "defName": "更新人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -4055,7 +4055,7 @@
           "id": "357DA9B7-4A81-40F0-A6E3-CBF08DF72A62"
         },
         {
-          "defKey": "update_time",
+          "defKey": "UPDATED_TIME",
           "defName": "更新时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",

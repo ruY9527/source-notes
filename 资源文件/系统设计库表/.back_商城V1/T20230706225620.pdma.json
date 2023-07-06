@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.6.0",
   "createdTime": "2023-7-1 23:10:36",
-  "updatedTime": "2023-7-6 22:56:34",
+  "updatedTime": "2023-7-6 22:56:20",
   "dbConns": [],
   "profile": {
     "default": {
@@ -3988,8 +3988,8 @@
         },
         {
           "defKey": "tenant_id",
-          "defName": "租户ID",
-          "comment": "租户ID",
+          "defName": "租户号",
+          "comment": "",
           "type": "",
           "len": 32,
           "scale": "",
@@ -4055,7 +4055,7 @@
           "id": "357DA9B7-4A81-40F0-A6E3-CBF08DF72A62"
         },
         {
-          "defKey": "update_time",
+          "defKey": "UPDATED_TIME",
           "defName": "更新时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
