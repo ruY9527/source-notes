@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.6.0",
   "createdTime": "2023-7-1 23:10:36",
-  "updatedTime": "2023-7-6 22:39:18",
+  "updatedTime": "2023-7-15 13:24:38",
   "dbConns": [],
   "profile": {
     "default": {
@@ -629,7 +629,7 @@
       "#DDE5FF"
     ],
     "DDLToggleCase": "L",
-    "menuWidth": "296px"
+    "menuWidth": "373px"
   },
   "entities": [
     {
@@ -1413,8 +1413,8 @@
           "defKey": "t_goods_sku_id",
           "defName": "货号/商品的skuID",
           "comment": "商品的ID+自增数值",
-          "type": "INT",
-          "len": 255,
+          "type": "bigint",
+          "len": "",
           "scale": "",
           "primaryKey": true,
           "notNull": true,
@@ -1427,11 +1427,28 @@
           "id": "ABFF4D34-D877-4A14-8DD4-E9687B848E79"
         },
         {
+          "defKey": "t_goods_sku_name",
+          "defName": "sku具体的名字(商品+sku组成)",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": true,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "ECC2D27F-D9EE-49FF-88DA-9CB3A5BEE635"
+        },
+        {
           "defKey": "t_goods_id",
           "defName": "商品ID",
           "comment": "商品的ID",
-          "type": "INT",
-          "len": 255,
+          "type": "bigint",
+          "len": "",
           "scale": "",
           "primaryKey": false,
           "notNull": true,
@@ -1447,8 +1464,8 @@
           "defKey": "t_goods_spec_ids",
           "defName": "商品的规格IDS",
           "comment": "规格商品的多个id",
-          "type": "",
-          "len": "",
+          "type": "VARCHAR",
+          "len": 255,
           "scale": "",
           "primaryKey": false,
           "notNull": true,
@@ -1457,7 +1474,7 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "6BC8F04B-6CFA-4995-98D3-318F5CDD774E",
+          "domain": "",
           "id": "7068BD94-A499-49FC-A7C8-BC7765F87DEC"
         },
         {
@@ -1631,7 +1648,7 @@
           "id": "577DDF38-7214-4687-B221-63C6BE4F8553"
         },
         {
-          "defKey": "CREATED_TIME",
+          "defKey": "create_time",
           "defName": "创建时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -1648,7 +1665,7 @@
           "id": "3B67632C-0424-4B5E-B2F8-FF2F8E8FF183"
         },
         {
-          "defKey": "UPDATED_BY",
+          "defKey": "update_by",
           "defName": "更新人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -1665,7 +1682,7 @@
           "id": "43E7D826-C118-410B-9E7B-11B92C850893"
         },
         {
-          "defKey": "UPDATED_TIME",
+          "defKey": "update_time",
           "defName": "更新时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -1840,8 +1857,8 @@
           "type": "bigint",
           "len": "",
           "scale": "",
-          "primaryKey": false,
-          "notNull": false,
+          "primaryKey": true,
+          "notNull": true,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
@@ -1923,7 +1940,7 @@
           "defName": "排序值",
           "comment": "排序值",
           "type": "INT",
-          "len": 255,
+          "len": "",
           "scale": "",
           "primaryKey": false,
           "notNull": false,
@@ -2210,7 +2227,7 @@
           "defKey": "t_specifications_id",
           "defName": "规格id",
           "comment": "规格ID",
-          "type": "",
+          "type": "bigint",
           "len": "",
           "scale": "",
           "primaryKey": true,
@@ -2220,15 +2237,15 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "6BC8F04B-6CFA-4995-98D3-318F5CDD774E",
+          "domain": "",
           "id": "CC0EEDCA-48F1-4096-9898-70918B22BC4F"
         },
         {
           "defKey": "t_specifications_name",
           "defName": "规格名称",
           "comment": "规格名称",
-          "type": "",
-          "len": "",
+          "type": "VARCHAR",
+          "len": 64,
           "scale": "",
           "primaryKey": false,
           "notNull": true,
@@ -2237,7 +2254,7 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "domain": "",
           "id": "F367ECED-71C1-4B08-983C-2E96028178E4"
         },
         {
@@ -2258,14 +2275,14 @@
           "id": "7ED2FBD4-4D81-492D-B23D-E5F7D0F13D92"
         },
         {
-          "defKey": "TENANT_ID",
+          "defKey": "tenant_id",
           "defName": "租户号",
           "comment": "",
           "type": "",
           "len": 32,
           "scale": "",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
@@ -2275,24 +2292,7 @@
           "id": "B02560FB-390A-45AD-9371-F7E37988CA3D"
         },
         {
-          "defKey": "REVISION",
-          "defName": "乐观锁",
-          "comment": "",
-          "domain": "6BC8F04B-6CFA-4995-98D3-318F5CDD774E",
-          "type": "",
-          "len": "",
-          "scale": "",
-          "primaryKey": false,
-          "notNull": false,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "refDict": "",
-          "uiHint": "",
-          "id": "5765427B-5E9E-45A3-8BAD-20DA5FD9DABF"
-        },
-        {
-          "defKey": "CREATED_BY",
+          "defKey": "create_by",
           "defName": "创建人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -2309,7 +2309,7 @@
           "id": "68988FE1-C10A-42E4-BC7E-FF5E9CE97347"
         },
         {
-          "defKey": "CREATED_TIME",
+          "defKey": "create_time",
           "defName": "创建时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -2326,7 +2326,7 @@
           "id": "5612A6B7-7699-4E3A-9B83-2B5681A3F547"
         },
         {
-          "defKey": "UPDATED_BY",
+          "defKey": "update_by",
           "defName": "更新人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -2343,7 +2343,7 @@
           "id": "C930F5D7-39FB-477C-A5E2-6689A0FA51D4"
         },
         {
-          "defKey": "UPDATED_TIME",
+          "defKey": "update_time",
           "defName": "更新时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -2563,28 +2563,10 @@
           "id": "18C80251-4125-48DB-8222-AEFAABEC7E71"
         },
         {
-          "defKey": "TENANT_ID",
+          "defKey": "tenant_id",
           "defName": "租户号",
-          "comment": "",
-          "type": "",
-          "len": 32,
-          "scale": "",
-          "primaryKey": false,
-          "notNull": false,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": true,
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "refDict": "",
-          "uiHint": "",
-          "id": "98857627-745D-4A88-963F-E0928C26C301"
-        },
-        {
-          "defKey": "REVISION",
-          "defName": "乐观锁",
-          "comment": "",
-          "domain": "6BC8F04B-6CFA-4995-98D3-318F5CDD774E",
-          "type": "",
+          "comment": "租户ID",
+          "type": "bigint",
           "len": "",
           "scale": "",
           "primaryKey": false,
@@ -2592,12 +2574,13 @@
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": true,
+          "domain": "",
           "refDict": "",
           "uiHint": "",
-          "id": "4B422AFD-CD81-4545-9F97-DFD7A66982CA"
+          "id": "98857627-745D-4A88-963F-E0928C26C301"
         },
         {
-          "defKey": "CREATED_BY",
+          "defKey": "create_by",
           "defName": "创建人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -2614,7 +2597,7 @@
           "id": "09BD1A79-A39B-4B07-BE1B-FF3301466AFB"
         },
         {
-          "defKey": "CREATED_TIME",
+          "defKey": "create_time",
           "defName": "创建时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -2631,7 +2614,7 @@
           "id": "079D2150-A623-4CD0-8F8F-AD2BE6A5D7BC"
         },
         {
-          "defKey": "UPDATED_BY",
+          "defKey": "update_by",
           "defName": "更新人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -2648,7 +2631,7 @@
           "id": "1D304D0A-0EBB-4389-A492-42E6BF0AD0A8"
         },
         {
-          "defKey": "UPDATED_TIME",
+          "defKey": "update_time",
           "defName": "更新时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -2837,7 +2820,7 @@
           "defKey": "t_classes_id",
           "defName": "商品三级分类ID",
           "comment": "第三级商品分类ID",
-          "type": "",
+          "type": "bigint",
           "len": "",
           "scale": "",
           "primaryKey": true,
@@ -2847,7 +2830,7 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "6BC8F04B-6CFA-4995-98D3-318F5CDD774E",
+          "domain": "",
           "id": "2A887428-E11E-476E-B212-33DA35AFBB47"
         },
         {
@@ -2885,28 +2868,10 @@
           "id": "F0058576-581D-4453-A970-63EA81E118E3"
         },
         {
-          "defKey": "TENANT_ID",
+          "defKey": "tenant_id",
           "defName": "租户号",
           "comment": "",
-          "type": "",
-          "len": 32,
-          "scale": "",
-          "primaryKey": false,
-          "notNull": false,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": true,
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "refDict": "",
-          "uiHint": "",
-          "id": "13409D53-34F5-4E91-80FF-3A04D5190B80"
-        },
-        {
-          "defKey": "REVISION",
-          "defName": "乐观锁",
-          "comment": "",
-          "domain": "6BC8F04B-6CFA-4995-98D3-318F5CDD774E",
-          "type": "",
+          "type": "bigint",
           "len": "",
           "scale": "",
           "primaryKey": false,
@@ -2914,12 +2879,13 @@
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": true,
+          "domain": "",
           "refDict": "",
           "uiHint": "",
-          "id": "B38EB7B7-4004-44BB-93E4-B78342D80840"
+          "id": "13409D53-34F5-4E91-80FF-3A04D5190B80"
         },
         {
-          "defKey": "CREATED_BY",
+          "defKey": "create_by",
           "defName": "创建人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -2936,7 +2902,7 @@
           "id": "EB201D0E-BE87-4758-A365-0F97ED509F9A"
         },
         {
-          "defKey": "CREATED_TIME",
+          "defKey": "create_time",
           "defName": "创建时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -2953,7 +2919,7 @@
           "id": "0AF72639-7925-4639-A4BD-643F10676179"
         },
         {
-          "defKey": "UPDATED_BY",
+          "defKey": "update_by",
           "defName": "更新人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -2970,7 +2936,7 @@
           "id": "C2FD08F1-34CF-4355-9E55-E8BE4439F268"
         },
         {
-          "defKey": "UPDATED_TIME",
+          "defKey": "update_time",
           "defName": "更新时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -3159,7 +3125,7 @@
           "defKey": "t_param_id",
           "defName": "参数id",
           "comment": "参数ID",
-          "type": "",
+          "type": "bigint",
           "len": "",
           "scale": "",
           "primaryKey": true,
@@ -3169,14 +3135,14 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "6BC8F04B-6CFA-4995-98D3-318F5CDD774E",
+          "domain": "",
           "id": "1A14B4F1-4734-405B-B1A8-E50049012BB9"
         },
         {
           "defKey": "t_classes_id",
           "defName": "商品分类Id",
           "comment": "商品分类ID",
-          "type": "",
+          "type": "bigint",
           "len": "",
           "scale": "",
           "primaryKey": false,
@@ -3186,7 +3152,7 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "6BC8F04B-6CFA-4995-98D3-318F5CDD774E",
+          "domain": "",
           "id": "64077676-0B9D-40B9-B7FF-1D275E5A9F45"
         },
         {
@@ -3244,8 +3210,8 @@
           "defKey": "t_param_must",
           "defName": "是否必须填写",
           "comment": "是否必须填写;0:必须填,1:非必须",
-          "type": "",
-          "len": "",
+          "type": "VARCHAR",
+          "len": 16,
           "scale": "",
           "primaryKey": false,
           "notNull": false,
@@ -3254,15 +3220,15 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "domain": "",
           "id": "2935165F-C1F1-4278-804F-25DD84F1F061"
         },
         {
           "defKey": "t_param_index",
           "defName": "是否可索引",
           "comment": "是否可索引;0:可,1:不可",
-          "type": "",
-          "len": "",
+          "type": "VARCHAR",
+          "len": 16,
           "scale": "",
           "primaryKey": false,
           "notNull": false,
@@ -3271,7 +3237,7 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "domain": "",
           "id": "A9F8F2D9-340D-408D-8B13-234BDFA2FB55"
         },
         {
@@ -3292,28 +3258,10 @@
           "id": "8A47B368-0A36-4A89-BB5E-209FF19B0A18"
         },
         {
-          "defKey": "TENANT_ID",
+          "defKey": "tenant_id",
           "defName": "租户号",
           "comment": "",
-          "type": "",
-          "len": 32,
-          "scale": "",
-          "primaryKey": false,
-          "notNull": false,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": true,
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "refDict": "",
-          "uiHint": "",
-          "id": "E28C7E48-ED63-4E6D-B3C1-FBF1F3F64E0B"
-        },
-        {
-          "defKey": "REVISION",
-          "defName": "乐观锁",
-          "comment": "",
-          "domain": "6BC8F04B-6CFA-4995-98D3-318F5CDD774E",
-          "type": "",
+          "type": "bigint",
           "len": "",
           "scale": "",
           "primaryKey": false,
@@ -3321,12 +3269,13 @@
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": true,
+          "domain": "",
           "refDict": "",
           "uiHint": "",
-          "id": "F3B352B9-6612-4B30-913F-E643691FA751"
+          "id": "E28C7E48-ED63-4E6D-B3C1-FBF1F3F64E0B"
         },
         {
-          "defKey": "CREATED_BY",
+          "defKey": "create_by",
           "defName": "创建人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -3343,7 +3292,7 @@
           "id": "5CD76287-EDA3-4B02-912E-F3F8FA7B9BBD"
         },
         {
-          "defKey": "CREATED_TIME",
+          "defKey": "create_time",
           "defName": "创建时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -3360,7 +3309,7 @@
           "id": "E6DE01B8-E84D-4586-A142-32EB2B512662"
         },
         {
-          "defKey": "UPDATED_BY",
+          "defKey": "update_by",
           "defName": "更新人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -3377,7 +3326,7 @@
           "id": "8E5ACE0B-78D1-42E4-AEAC-FBC2EEDA03B2"
         },
         {
-          "defKey": "UPDATED_TIME",
+          "defKey": "update_time",
           "defName": "更新时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -3566,24 +3515,24 @@
           "defKey": "t_common_id",
           "defName": "评论id",
           "comment": "",
-          "type": "",
+          "type": "bigint",
           "len": "",
           "scale": "",
           "primaryKey": true,
           "notNull": true,
-          "autoIncrement": true,
+          "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "6BC8F04B-6CFA-4995-98D3-318F5CDD774E",
+          "domain": "",
           "id": "B6CF9C29-98A6-4406-A5EF-BBBFC1DAD8EC"
         },
         {
           "defKey": "t_goods_id",
           "defName": "评论商品id",
           "comment": "",
-          "type": "",
+          "type": "bigint",
           "len": "",
           "scale": "",
           "primaryKey": false,
@@ -3593,7 +3542,7 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "domain": "",
           "id": "525C4C90-01BF-41EB-A751-7D55982AFE00"
         },
         {
@@ -3621,7 +3570,7 @@
           "len": 16,
           "scale": "",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
@@ -3634,8 +3583,8 @@
           "defKey": "t_common_content",
           "defName": "评论内容",
           "comment": "评论内容",
-          "type": "",
-          "len": "",
+          "type": "TEXT",
+          "len": 255,
           "scale": "",
           "primaryKey": false,
           "notNull": true,
@@ -3644,7 +3593,7 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "domain": "",
           "id": "DE55B9FE-C7A9-4846-9372-617C9832513D"
         },
         {
@@ -3665,28 +3614,10 @@
           "id": "49369C5E-94E2-495F-BD2E-C9BD4EAB34E5"
         },
         {
-          "defKey": "TENANT_ID",
+          "defKey": "tenant_id",
           "defName": "租户号",
           "comment": "",
-          "type": "",
-          "len": 32,
-          "scale": "",
-          "primaryKey": false,
-          "notNull": false,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": true,
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "refDict": "",
-          "uiHint": "",
-          "id": "37B9C36A-C4EF-422A-9141-01F977BE6F85"
-        },
-        {
-          "defKey": "REVISION",
-          "defName": "乐观锁",
-          "comment": "",
-          "domain": "6BC8F04B-6CFA-4995-98D3-318F5CDD774E",
-          "type": "",
+          "type": "bigint",
           "len": "",
           "scale": "",
           "primaryKey": false,
@@ -3694,12 +3625,13 @@
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": true,
+          "domain": "",
           "refDict": "",
           "uiHint": "",
-          "id": "4EAB4738-5DA7-498F-BC78-A208078EB116"
+          "id": "37B9C36A-C4EF-422A-9141-01F977BE6F85"
         },
         {
-          "defKey": "CREATED_BY",
+          "defKey": "create_by",
           "defName": "创建人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -3716,7 +3648,7 @@
           "id": "6DAA5B8C-2520-4E29-BE73-D729A722A138"
         },
         {
-          "defKey": "CREATED_TIME",
+          "defKey": "create_time",
           "defName": "创建时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -3733,7 +3665,7 @@
           "id": "9949ED42-698A-4F03-972E-B1284A12F1D9"
         },
         {
-          "defKey": "UPDATED_BY",
+          "defKey": "update_by",
           "defName": "更新人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -3750,7 +3682,7 @@
           "id": "10477434-AFF4-4B37-AF29-7AB8E6373BE8"
         },
         {
-          "defKey": "UPDATED_TIME",
+          "defKey": "update_time",
           "defName": "更新时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -3939,8 +3871,8 @@
           "defKey": "t_reply_id",
           "defName": "回复id",
           "comment": "回复id;如果是在评论下回复的,该值递增",
-          "type": "",
-          "len": "",
+          "type": "bigint",
+          "len": 255,
           "scale": "",
           "primaryKey": true,
           "notNull": true,
@@ -3949,15 +3881,15 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "domain": "",
           "id": "5E18FE9C-576E-467E-9A17-C2FF92C0B0B3"
         },
         {
           "defKey": "t_parent_reply_id",
           "defName": "父级回复id",
           "comment": "比如回复下嵌套回复;存储上一个回复的id",
-          "type": "",
-          "len": "",
+          "type": "bigint",
+          "len": 255,
           "scale": "",
           "primaryKey": false,
           "notNull": false,
@@ -3966,15 +3898,15 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "domain": "",
           "id": "AFCFD240-38F0-461E-ADA4-F9579AA655C8"
         },
         {
           "defKey": "t_comment_id",
           "defName": "评论id",
           "comment": "评论id",
-          "type": "INT",
-          "len": 255,
+          "type": "bigint",
+          "len": "",
           "scale": "",
           "primaryKey": false,
           "notNull": true,
@@ -3989,8 +3921,8 @@
         {
           "defKey": "t_user_id",
           "defName": "回复人id",
-          "comment": "",
-          "type": "",
+          "comment": "回复人id",
+          "type": "bigint",
           "len": "",
           "scale": "",
           "primaryKey": false,
@@ -4000,14 +3932,14 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "domain": "",
           "id": "AE6EE02C-2D90-4A85-89E2-72C8BB630A44"
         },
         {
           "defKey": "t_reply_content",
           "defName": "回复内容",
           "comment": "回复的内容",
-          "type": "",
+          "type": "TEXT",
           "len": "",
           "scale": "",
           "primaryKey": false,
@@ -4017,15 +3949,15 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "domain": "",
           "id": "8EEF5E04-4F57-4EDE-B9AE-3E7B6FE0F1DF"
         },
         {
           "defKey": "t_reply_level",
           "defName": "回复级别",
           "comment": "",
-          "type": "",
-          "len": "",
+          "type": "VARCHAR",
+          "len": 16,
           "scale": "",
           "primaryKey": false,
           "notNull": false,
@@ -4034,7 +3966,7 @@
           "hideInGraph": false,
           "refDict": "",
           "extProps": {},
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "domain": "",
           "id": "A78298B8-D0E6-4DCC-9D45-452DCE7F23FA"
         },
         {
@@ -4055,9 +3987,9 @@
           "id": "BF88EC5F-66D0-4B77-AA01-56DBA733BF1F"
         },
         {
-          "defKey": "TENANT_ID",
-          "defName": "租户号",
-          "comment": "",
+          "defKey": "tenant_id",
+          "defName": "租户ID",
+          "comment": "租户ID",
           "type": "",
           "len": 32,
           "scale": "",
@@ -4072,24 +4004,7 @@
           "id": "7DDCEB82-BF78-496E-A4B5-E11986EB8BE2"
         },
         {
-          "defKey": "REVISION",
-          "defName": "乐观锁",
-          "comment": "",
-          "domain": "6BC8F04B-6CFA-4995-98D3-318F5CDD774E",
-          "type": "",
-          "len": "",
-          "scale": "",
-          "primaryKey": false,
-          "notNull": false,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": true,
-          "refDict": "",
-          "uiHint": "",
-          "id": "E991A29D-6827-48AB-8B0B-1E5704A98022"
-        },
-        {
-          "defKey": "CREATED_BY",
+          "defKey": "create_by",
           "defName": "创建人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -4106,7 +4021,7 @@
           "id": "3D6A64FB-FF63-4207-9364-9345F3421A62"
         },
         {
-          "defKey": "CREATED_TIME",
+          "defKey": "create_time",
           "defName": "创建时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -4123,7 +4038,7 @@
           "id": "63141CE9-C039-4806-B815-1E392C83D234"
         },
         {
-          "defKey": "UPDATED_BY",
+          "defKey": "update_by",
           "defName": "更新人",
           "comment": "",
           "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
@@ -4140,7 +4055,7 @@
           "id": "357DA9B7-4A81-40F0-A6E3-CBF08DF72A62"
         },
         {
-          "defKey": "UPDATED_TIME",
+          "defKey": "update_time",
           "defName": "更新时间",
           "comment": "",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
@@ -4906,6 +4821,277 @@
       ],
       "correlations": [],
       "indexes": []
+    },
+    {
+      "id": "2332E0A8-0DC8-4A28-848C-273574FD3C16",
+      "env": {
+        "base": {
+          "nameSpace": "",
+          "codeRoot": ""
+        }
+      },
+      "defKey": "goods_brand",
+      "defName": "品牌列表",
+      "comment": "",
+      "properties": {
+        "partitioned by": "(date string)",
+        "row format delimited": "",
+        "fields terminated by ','": "",
+        "collection items terminated by '-'": "",
+        "map keys terminated by ':'": "",
+        "store as textfile;": ""
+      },
+      "nameTemplate": "{defKey}[{defName}]",
+      "notes": {},
+      "headers": [
+        {
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "defName",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "primaryKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "notNull",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "autoIncrement",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "domain",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "type",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "len",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "scale",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "comment",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "refDict",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defaultValue",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "isStandard",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "uiHint",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "extProps",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr1",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr2",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr3",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr4",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr5",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr6",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr7",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr8",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr9",
+          "freeze": false,
+          "hideInGraph": true
+        }
+      ],
+      "fields": [
+        {
+          "defKey": "TENANT_ID",
+          "defName": "租户号",
+          "comment": "",
+          "type": "",
+          "len": 32,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": true,
+          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
+          "refDict": "",
+          "uiHint": "",
+          "id": "F7DB3118-92D5-4139-B90A-67FFA03A1B32"
+        },
+        {
+          "defKey": "REVISION",
+          "defName": "乐观锁",
+          "comment": "",
+          "domain": "6BC8F04B-6CFA-4995-98D3-318F5CDD774E",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": true,
+          "refDict": "",
+          "uiHint": "",
+          "id": "C9D51144-4510-40D3-BD8C-52E4C89CA4A6"
+        },
+        {
+          "defKey": "create_by",
+          "defName": "创建人",
+          "comment": "",
+          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
+          "type": "",
+          "len": 32,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": true,
+          "refDict": "",
+          "uiHint": "",
+          "id": "7C0AFA3D-E10F-473A-91C6-7DAE4C3B5984"
+        },
+        {
+          "defKey": "CREATED_TIME",
+          "defName": "创建时间",
+          "comment": "",
+          "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": true,
+          "refDict": "",
+          "uiHint": "",
+          "id": "9BB04903-C425-4645-A757-080A726EE7EC"
+        },
+        {
+          "defKey": "UPDATED_BY",
+          "defName": "更新人",
+          "comment": "",
+          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
+          "type": "",
+          "len": 32,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": true,
+          "refDict": "",
+          "uiHint": "",
+          "id": "53FE008A-6D7D-479A-8AB2-7A642EA265F5"
+        },
+        {
+          "defKey": "UPDATED_TIME",
+          "defName": "更新时间",
+          "comment": "",
+          "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": true,
+          "refDict": "",
+          "uiHint": "",
+          "id": "1124791E-DD79-41AE-B859-86E9CCC8D6B3"
+        },
+        {
+          "defKey": "del_flag",
+          "defName": "逻辑删除",
+          "comment": "0:未删除;1:删除",
+          "type": "VARCHAR",
+          "len": 16,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "",
+          "id": "AE712385-20AE-4036-A739-D99470C6D98E"
+        }
+      ],
+      "correlations": [],
+      "indexes": []
     }
   ],
   "views": [],
@@ -4923,7 +5109,8 @@
         "E219F54C-0C4C-400A-B002-6C7406EA342E",
         "F21B23BA-6E33-44A7-B1EE-0B29B9C6EA5E",
         "3366A5EE-B8F2-45B5-862B-5B2B8A3D10C6",
-        "FEF7440B-8C8F-462C-AB23-21EADB39B755"
+        "FEF7440B-8C8F-462C-AB23-21EADB39B755",
+        "2332E0A8-0DC8-4A28-848C-273574FD3C16"
       ],
       "refViews": [],
       "refDiagrams": [
